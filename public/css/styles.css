@@ -1,0 +1,42 @@
+/* Estilos generales */
+body {
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+.mensaje-centrado {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.mensaje-error {
+    color: #dc3545;
+    text-align: center;
+    padding: 20px;
+}
+
+.pagination {
+    margin: 20px 0;
+}
+
+.btn-outline-primary {
+    min-width: 100px;
+}
+
+#pageInfo {
+    font-size: 0.95em;
+    color: #666;
+    padding: 0 15px;
+}
+
+#ultimoActualizado {
+    text-align: right;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 10px;
+}

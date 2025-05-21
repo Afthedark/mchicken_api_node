@@ -1,0 +1,56 @@
+# Dependencias
+node_modules/
+
+# Archivos de entorno
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del sistema
+.DS_Store
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos de compilación
+dist/
+build/
+
+# Configuración local
+*.local
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Archivos de depuración
+*.pid
+*.seed
+
+# Archivos de cobertura
+coverage/
+.nyc_output/
+
+# Archivos de documentación
+docs/
+
+# Archivos de paquetes
+*.tgz
+
+# Archivos de TypeScript
+*.tsbuildinfo
