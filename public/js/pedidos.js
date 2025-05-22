@@ -23,16 +23,30 @@ async function fetchPedidos(page, callback) {
 function renderPedidos(pedidos, tableBodyId) {
     const tableBody = document.getElementById(tableBodyId);
     tableBody.innerHTML = '';
+    const completedOrders = getCompletedOrders();
 
     if (!pedidos || !Array.isArray(pedidos)) {
         tableBody.innerHTML = 
-            `<tr><td colspan="5" class="mensaje-error">No se encontraron pedidos o formato inválido</td></tr>`;
+            `<tr><td colspan="6" class="mensaje-error">No se encontraron pedidos o formato inválido</td></tr>`;
         return;
     }
 
     try {
         pedidos.forEach((pedido, index) => {
+            // Crear un ID único para el pedido basado en sus propiedades
+            const orderId = `${pedido.cliente}-${pedido.producto}-${pedido.fecha}-${index}`;
+            
+            // Si el pedido está marcado como completado, no lo mostramos
+            if (completedOrders.includes(orderId)) {
+                return;
+            }
+
             const row = document.createElement('tr');
+            const completedButton = document.createElement('button');
+            completedButton.className = 'btn btn-success btn-sm';
+            completedButton.textContent = '✓ Completado';
+            completedButton.addEventListener('click', () => markOrderAsCompleted(orderId));
+
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${pedido.cliente || 'N/A'}</td>
@@ -40,12 +54,22 @@ function renderPedidos(pedidos, tableBodyId) {
                 <td>${pedido.cantidad || 'N/A'}</td>
                 <td>${pedido.fecha ? new Date(pedido.fecha).toLocaleString() : 'N/A'}</td>
             `;
+            
+            const actionCell = document.createElement('td');
+            actionCell.appendChild(completedButton);
+            row.appendChild(actionCell);
             tableBody.appendChild(row);
         });
+
+        // Si no hay pedidos visibles después de filtrar los completados
+        if (tableBody.children.length === 0) {
+            tableBody.innerHTML = 
+                `<tr><td colspan="6" class="mensaje-centrado">No hay pedidos pendientes</td></tr>`;
+        }
     } catch (error) {
         console.error('Error al renderizar pedidos:', error);
         tableBody.innerHTML = 
-            `<tr><td colspan="5" class="mensaje-error">Error al mostrar los pedidos</td></tr>`;
+            `<tr><td colspan="6" class="mensaje-error">Error al mostrar los pedidos</td></tr>`;
     }
 }
 
@@ -63,24 +87,26 @@ function updateLastUpdated() {
     }
 }
 
-// Configurar listeners para los botones de paginación
-document.getElementById('prevPage').addEventListener('click', () => {
-    if (currentPage > 1) {
-        currentPage--;
-        loadPedidos();
-    }
-});
+// Función para inicializar los event listeners
+function initializeEventListeners() {
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadPedidos();
+        }
+    });
 
-document.getElementById('nextPage').addEventListener('click', () => {
-    currentPage++;
-    loadPedidos();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+    document.getElementById('nextPage').addEventListener('click', () => {
+        currentPage++;
+        loadPedidos();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
 
 // Función principal para cargar pedidos
 function loadPedidos() {
     document.getElementById('pedidosTableBody').innerHTML = 
-        `<tr><td colspan="5" class="mensaje-centrado">Cargando pedidos...</td></tr>`;
+        `<tr><td colspan="6" class="mensaje-centrado">Cargando pedidos...</td></tr>`;
     
     fetchPedidos(currentPage, (data) => {
         renderPedidos(data.pedidos, 'pedidosTableBody');
@@ -93,5 +119,24 @@ function loadPedidos() {
     });
 }
 
-// Inicializar
-loadPedidos();
+// Función para obtener pedidos completados del localStorage
+function getCompletedOrders() {
+    const completed = localStorage.getItem('completedOrders');
+    return completed ? JSON.parse(completed) : [];
+}
+
+// Función para marcar un pedido como completado
+function markOrderAsCompleted(orderId) {
+    const completed = getCompletedOrders();
+    if (!completed.includes(orderId)) {
+        completed.push(orderId);
+        localStorage.setItem('completedOrders', JSON.stringify(completed));
+    }
+    loadPedidos(); // Recargar la lista de pedidos
+}
+
+// Esperar a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', () => {
+    loadPedidos(); // Cargar los pedidos iniciales primero
+    initializeEventListeners(); // Inicializar los event listeners después
+});
