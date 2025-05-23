@@ -44,7 +44,7 @@ function renderPedidos(pedidos, tableBodyId) {
             const row = document.createElement('tr');
             const completedButton = document.createElement('button');
             completedButton.className = 'btn btn-success btn-sm';
-            completedButton.textContent = '✓ Completado';
+            completedButton.textContent = '✓ Marcar como Completado';
             completedButton.addEventListener('click', () => markOrderAsCompleted(orderId));
 
             row.innerHTML = `
