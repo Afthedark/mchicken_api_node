@@ -15,9 +15,12 @@
 2. Crear la base de datos `pv_mchicken` e importar el esquema SQL
 
 ## Uso
-1. Iniciar el servidor: `node server.js`
-2. Acceder a la interfaz web en `http://localhost:3000`
-3. La API estará disponible en `http://localhost:3000/pedidos`
+1. Iniciar el servidor manualmente: `node server.js`
+2. Para iniciar automáticamente al encender el equipo:
+   - Copiar el archivo `start_backend.bat` a la carpeta de inicio de Windows (`C:\Users\[TuUsuario]\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`)
+   - Al iniciar el equipo, el backend se ejecutará automáticamente
+3. Acceder a la interfaz web en `http://localhost:3000`
+4. La API estará disponible en `http://localhost:3000/pedidos`
 
 ## Características
 - Endpoint GET `/pedidos` para obtener todos los pedidos
