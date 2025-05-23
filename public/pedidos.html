@@ -5,37 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedidos a Preparar - Mama Chicken</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <div class="container mt-5 shadow rounded">
-        <h1>Pedidos a Preparar - Mama Chicken</h1>
-        
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Cliente</th>
-                    <th>Productos y Cantidades</th>
-                    <th>Factura ID</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="pedidosTableBody">
-                <!-- Los pedidos se cargarán dinámicamente aquí -->
-            </tbody>
-        </table>
+    <div class="container py-4">
+        <div class="main-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">
+                    <i class="fas fa-utensils me-2"></i>
+                    Pedidos a Preparar
+                </h1>
+                <div id="ultimoActualizado">
+                    <i class="fas fa-sync-alt me-1"></i>
+                    <!-- La última actualización se mostrará aquí -->
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="fas fa-hashtag me-1"></i>
+                                Orden
+                            </th>
+                            <th>
+                                <i class="fas fa-user me-1"></i>
+                                Cliente
+                            </th>
+                            <th>
+                                <i class="fas fa-hamburger me-1"></i>
+                                Productos y Cantidades
+                            </th>
 
-        <!-- Controles de paginación añadidos -->
-        <div class="pagination justify-content-center mt-3">
-            <button id="prevPage" class="btn btn-outline-primary mx-1">Anterior</button>
-            <span id="pageInfo" class="mx-2 align-self-center">Página 1 de 1</span>
-            <button id="nextPage" class="btn btn-outline-primary mx-1">Siguiente</button>
-        </div>
+                            <th>
+                                <i class="far fa-clock me-1"></i>
+                                Fecha
+                            </th>
+                            <th>
+                                <i class="fas fa-check-circle me-1"></i>
+                                Estado
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="pedidosTableBody">
+                        <!-- Los pedidos se cargarán dinámicamente aquí -->
+                    </tbody>
+                </table>
+            </div>
 
-        <div id="ultimoActualizado" class="text-end text-muted mt-3">
-            <!-- La última actualización se mostrará aquí -->
+            <!-- Controles de paginación -->
+            <div class="pagination justify-content-center">
+                <button id="prevPage" class="btn-nav">
+                    <i class="fas fa-chevron-left me-1"></i>
+                    Anterior
+                </button>
+                <span id="pageInfo"></span>
+                <button id="nextPage" class="btn-nav">
+                    Siguiente
+                    <i class="fas fa-chevron-right ms-1"></i>
+                </button>
+            </div>
         </div>
     </div>
 

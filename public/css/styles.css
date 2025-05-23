@@ -1,42 +1,257 @@
 /* Estilos generales */
+:root {
+    --primary-color: #FF6B35;    /* Naranja vibrante */
+    --secondary-color: #2EC4B6;  /* Verde turquesa */
+    --accent-color: #FFCE32;     /* Amarillo */
+    --text-dark: #333333;
+    --text-light: #666666;
+    --background-light: #F7F9FC;
+}
+
 body {
-    background-color: #f5f5f5;
-    padding: 20px;
+    background-color: var(--background-light);
+    font-family: 'Poppins', -apple 'apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.main-container {
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 h1 {
-    margin-bottom: 30px;
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    border-left: 5px solid var(--primary-color);
+    padding-left: 15px;
 }
 
+/* Tabla de pedidos */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.table thead {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(255,107,53,0.05);
+}
+
+/* Botones y acciones */
+.btn-complete {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-complete:hover {
+    background-color: #25a698;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46,196,182,0.2);
+}
+
+.btn-complete i {
+    font-size: 1.1rem;
+}
+
+/* Mensajes y estados */
 .mensaje-centrado {
     text-align: center;
-    padding: 20px;
-    color: #666;
+    padding: 2rem;
+    color: var(--text-light);
+    background-color: white;
+    border-radius: 10px;
+    font-size: 1.1rem;
 }
 
 .mensaje-error {
     color: #dc3545;
     text-align: center;
-    padding: 20px;
+    padding: 2rem;
+    background-color: #fff5f5;
+    border-radius: 10px;
+    border-left: 4px solid #dc3545;
 }
 
+/* Paginación */
 .pagination {
-    margin: 20px 0;
+    margin: 2rem 0;
+    gap: 1rem;
 }
 
-.btn-outline-primary {
-    min-width: 100px;
+.btn-nav {
+    background-color: white;
+    color: var(--text-dark);
+    border: 2px solid var(--primary-color);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.btn-nav:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-nav:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 #pageInfo {
-    font-size: 0.95em;
-    color: #666;
-    padding: 0 15px;
+    font-size: 1rem;
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
+/* Estado de actualización */
 #ultimoActualizado {
     text-align: right;
-    color: #666;
-    font-size: 0.9em;
-    margin-top: 10px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 8px;
+    display: inline-block;
+    float: right;
+}
+
+/* Estilos para los elementos de pedido */
+.order-number {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.customer-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.customer-info i {
+    color: var(--text-light);
+    font-size: 1.2rem;
+}
+
+.products-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.product-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--background-light);
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.product-item:hover {
+    background-color: rgba(255,107,53,0.1);
+}
+
+.product-name {
+    font-weight: 500;
+}
+
+.product-quantity {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.invoice-info, .date-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.invoice-info i, .date-info i {
+    color: var(--text-light);
+}
+
+.date-info {
+    cursor: help;
+}
+
+/* Scrollbar personalizado para la lista de productos */
+.products-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.products-container::-webkit-scrollbar-track {
+    background: var(--background-light);
+    border-radius: 10px;
+}
+
+.products-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.products-container::-webkit-scrollbar-thumb:hover {
+    background: #ff5a20;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(30px); }
+}
+
+.table tbody tr {
+    animation: fadeIn 0.3s ease forwards;
 }

@@ -43,9 +43,12 @@ function renderPedidos(pedidos, tableBodyId) {
 
             const row = document.createElement('tr');
             const completedButton = document.createElement('button');
-            completedButton.className = 'btn btn-success btn-sm';
-            completedButton.textContent = '✓ Marcar como Completado';
-            completedButton.addEventListener('click', () => markOrderAsCompleted(orderId));
+            completedButton.className = 'btn-complete';
+            completedButton.innerHTML = '<i class="fas fa-check"></i> Completar Pedido';
+            completedButton.addEventListener('click', (e) => {
+                e.target.closest('tr').style.animation = 'fadeOut 0.5s ease forwards';
+                setTimeout(() => markOrderAsCompleted(orderId), 500);
+            });
 
             // Split productos and cantidades if they are concatenated strings
             const productos = pedido.producto ? pedido.producto.split(', ') : ['N/A'];
@@ -54,15 +57,39 @@ function renderPedidos(pedidos, tableBodyId) {
             // Create a formatted list of productos with their cantidades
             const productList = productos.map((prod, i) => {
                 const cant = cantidades[i] ? parseInt(parseFloat(cantidades[i])) : 'N/A';
-                return `${prod} (${cant})`;
-            }).join('<br>');
+                return `
+                    <div class="product-item">
+                        <span class="product-name">${prod}</span>
+                        <span class="product-quantity">${cant}</span>
+                    </div>`;
+            }).join('');
+
+            const orderDate = pedido.fecha ? new Date(pedido.fecha) : null;
+            const timeAgo = orderDate ? getTimeAgo(orderDate) : 'N/A';
+            const formattedDate = orderDate ? orderDate.toLocaleString() : 'N/A';
 
             row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${pedido.cliente || 'N/A'}</td>
-                <td>${productList}</td>
-                <td>${pedido['Factura ID'] || 'N/A'}</td>
-                <td>${pedido.fecha ? new Date(pedido.fecha).toLocaleString() : 'N/A'}</td>
+                <td>
+                    <span class="order-number">#${index + 1}</span>
+                </td>
+                <td>
+                    <div class="customer-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>${pedido.cliente || 'N/A'}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="products-container">
+                        ${productList}
+                    </div>
+                </td>
+
+                <td>
+                    <div class="date-info" title="${formattedDate}">
+                        <i class="far fa-clock"></i>
+                        <span>${timeAgo}</span>
+                    </div>
+                </td>
             `;
             
             const actionCell = document.createElement('td');
@@ -145,6 +172,24 @@ function markOrderAsCompleted(orderId) {
     loadPedidos(); // Recargar la lista de pedidos
 }
 
+// Función para formatear el tiempo transcurrido
+function getTimeAgo(date) {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+
+    if (diffInSeconds < 60) {
+        return 'Hace un momento';
+    } else if (diffInMinutes < 60) {
+        return `Hace ${diffInMinutes} min`;
+    } else if (diffInHours < 24) {
+        return `Hace ${diffInHours}h`;
+    } else {
+        return date.toLocaleDateString();
+    }
+}
+
 // Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
     loadPedidos(); // Cargar los pedidos iniciales primero
@@ -153,5 +198,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurar actualización automática cada 30 segundos
     setInterval(() => {
         loadPedidos();
-    }, 5000);
+    }, 8000);
 });
