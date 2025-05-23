@@ -10,11 +10,10 @@ const pedidosController = {
         const sqlQuery = `
         SELECT 
             c.nombre_razon_social AS cliente,
-            i.descripcion AS producto,
+            GROUP_CONCAT(i.descripcion SEPARATOR ', ') AS producto,
             p.fecha,
-            lpf.cantidad AS cantidad,
-            lpf.precio_unitario AS precio,
-            lpf.total AS total,
+            GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
+            f.factura_id AS 'Factura ID',
             p.estado
         FROM 
             pv_mchicken.pedidos p
@@ -28,6 +27,8 @@ const pedidosController = {
             pv_mchicken.items i ON lpf.item_id = i.item_id
         WHERE 
             p.estado = 'CONCLUIDO'
+        GROUP BY
+            f.factura_id, c.nombre_razon_social, p.fecha, p.estado
         ORDER BY
             p.fecha DESC
         LIMIT ${limit} OFFSET ${offset};

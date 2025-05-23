@@ -47,11 +47,21 @@ function renderPedidos(pedidos, tableBodyId) {
             completedButton.textContent = '✓ Marcar como Completado';
             completedButton.addEventListener('click', () => markOrderAsCompleted(orderId));
 
+            // Split productos and cantidades if they are concatenated strings
+            const productos = pedido.producto ? pedido.producto.split(', ') : ['N/A'];
+            const cantidades = pedido.cantidad ? pedido.cantidad.split(', ') : ['N/A'];
+            
+            // Create a formatted list of productos with their cantidades
+            const productList = productos.map((prod, i) => {
+                const cant = cantidades[i] ? parseInt(parseFloat(cantidades[i])) : 'N/A';
+                return `${prod} (${cant})`;
+            }).join('<br>');
+
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${pedido.cliente || 'N/A'}</td>
-                <td>${pedido.producto || 'N/A'}</td>
-                <td>${pedido.cantidad || 'N/A'}</td>
+                <td>${productList}</td>
+                <td>${pedido['Factura ID'] || 'N/A'}</td>
                 <td>${pedido.fecha ? new Date(pedido.fecha).toLocaleString() : 'N/A'}</td>
             `;
             
@@ -139,4 +149,9 @@ function markOrderAsCompleted(orderId) {
 document.addEventListener('DOMContentLoaded', () => {
     loadPedidos(); // Cargar los pedidos iniciales primero
     initializeEventListeners(); // Inicializar los event listeners después
+    
+    // Configurar actualización automática cada 30 segundos
+    setInterval(() => {
+        loadPedidos();
+    }, 5000);
 });
