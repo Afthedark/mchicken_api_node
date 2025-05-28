@@ -1,2 +1,3 @@
 @echo off
-start node server.js
+cd /d "%~dp0"
+start /min cmd /c "node server.js"
