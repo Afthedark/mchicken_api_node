@@ -13,7 +13,7 @@ db.connect((err) => {
     if (err) {
         throw err;
     }
-    console.log('Conexión exitosa a la base de datos');
+    console.log('Conexión exitosa a la base de datos, porfavor no cierre esta ventana solo minimice.');
 });
 
 module.exports = db;

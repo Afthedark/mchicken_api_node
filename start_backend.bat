@@ -1,4 +1,5 @@
 @echo off
+title Backend MChicken API
 cd /d "C:\mchicken_api_node"
 
 :: Verificar si Node.js está instalado
@@ -10,6 +11,5 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: Iniciar servidor en segundo plano (sin ventana)
-start "" /b node server.js
-exit
+:: Iniciar servidor Node.js en modo silencioso
+node server.js
