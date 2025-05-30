@@ -1,4 +1,4 @@
-/* Estilos generales */
+/* Estilos específicos para pedidos.html */
 :root {
     --primary-color: #FF6B35;    /* Naranja vibrante */
     --secondary-color: #2EC4B6;  /* Verde turquesa */
@@ -10,7 +10,7 @@
 
 body {
     background-color: var(--background-light);
-    font-family: 'Poppins', -apple 'apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 .main-container {
@@ -222,7 +222,7 @@ h1 {
     cursor: help;
 }
 
-/* Scrollbar personalizado para la lista de productos */
+/* Scrollbar personalizado */
 .products-container::-webkit-scrollbar {
     width: 6px;
 }
