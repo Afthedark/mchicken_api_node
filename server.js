@@ -17,6 +17,7 @@ app.use('/pedidos', pedidosRouter);
 // Servir archivos estáticos
 app.use(express.static('public'));
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
+    console.log('Para acceder desde otras máquinas en la red LAN, usa la IP de esta máquina');
 });
