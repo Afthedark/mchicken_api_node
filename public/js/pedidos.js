@@ -1,10 +1,22 @@
 // Lógica específica para la vista de pedidos
 let currentPage = 1;
+let currentFilters = {
+    fechaInicio: null,
+    fechaFin: null
+};
 
 // Funciones para manejar pedidos
 async function fetchPedidos(page, callback) {
     try {
-        const response = await fetch(`/pedidos?page=${page}`);
+        let url = `/pedidos?page=${page}`;
+        if (currentFilters.fechaInicio) {
+            url += `&fechaInicio=${currentFilters.fechaInicio}`;
+        }
+        if (currentFilters.fechaFin) {
+            url += `&fechaFin=${currentFilters.fechaFin}`;
+        }
+        
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -137,6 +149,32 @@ function initializeEventListeners() {
         currentPage++;
         loadPedidos();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Nuevos event listeners para los filtros de fecha
+    document.getElementById('filtrarFechas').addEventListener('click', () => {
+        currentFilters.fechaInicio = document.getElementById('fechaInicio').value;
+        currentFilters.fechaFin = document.getElementById('fechaFin').value;
+        currentPage = 1; // Resetear a la primera página al filtrar
+        loadPedidos();
+    });
+
+    document.getElementById('limpiarFiltros').addEventListener('click', () => {
+        document.getElementById('fechaInicio').value = '';
+        document.getElementById('fechaFin').value = '';
+        currentFilters.fechaInicio = null;
+        currentFilters.fechaFin = null;
+        currentPage = 1; // Resetear a la primera página al limpiar filtros
+        loadPedidos();
+    });
+
+    // Validar que la fecha fin no sea menor que la fecha inicio
+    document.getElementById('fechaFin').addEventListener('change', function() {
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        if (fechaInicio && this.value < fechaInicio) {
+            alert('La fecha final no puede ser menor que la fecha inicial');
+            this.value = fechaInicio;
+        }
     });
 }
 
