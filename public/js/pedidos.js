@@ -236,5 +236,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurar actualización automática cada 30 segundos
     setInterval(() => {
         loadPedidos();
-    }, 8000);
+    }, 5000);
 });
