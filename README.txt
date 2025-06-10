@@ -16,9 +16,12 @@
 
 ## Uso
 1. Iniciar el servidor manualmente: `node server.js`
-2. Para iniciar automáticamente al encender el equipo:
-   - Copiar el archivo `start_backend.bat` a la carpeta de inicio de Windows (`C:\Users\[TuUsuario]\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`)
-   - Al iniciar el equipo, el backend se ejecutará automáticamente
+2. Para iniciar automáticamente al encender el equipo con PM2:
+   - Asegúrate de tener PM2 instalado globalmente: `npm install -g pm2`
+   - Inicia el backend con PM2 usando el archivo `start_backend_auto.bat` o directamente: `pm2 start server.js --name mchicken_api_node`
+   - Para configurar PM2 para que se inicie automáticamente al arrancar el sistema, ejecuta en la línea de comandos (como administrador):
+     `pm2 startup`
+     Sigue las instrucciones que te proporcione PM2 para completar la configuración del servicio de inicio automático.
 
 ### Acceso Local
 - Acceder a la interfaz web en `http://localhost:3000`
