@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "pm2 start ecosystem.config.js",
+    "stop": "pm2 stop mchicken-api",
+    "restart": "pm2 restart mchicken-api",
+    "logs": "pm2 logs mchicken-api",
+    "status": "pm2 status mchicken-api",
+    "delete": "pm2 delete mchicken-api"
   },
   "keywords": [],
   "author": "",

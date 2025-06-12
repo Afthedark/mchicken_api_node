@@ -3,9 +3,9 @@
     --primary-color: #FF6B35;    /* Naranja vibrante */
     --secondary-color: #2EC4B6;  /* Verde turquesa */
     --accent-color: #FFCE32;     /* Amarillo */
-    --text-dark: #333333;
-    --text-light: #666666;
-    --background-light: #F7F9FC;
+    --text-dark: #333333; /* Color oscuro */
+    --text-light: #666666; /* Color gris */
+    --background-light: #F7F9FC;  /* Gris claro */
 }
 
 body {
@@ -41,6 +41,18 @@ h1 {
     color: white;
 }
 
+
+/* Esto para la Linea de tabla el separador */
+.table td, .table th {
+    border-bottom: 1px solid #ff5a20; /* Color gris más oscuro */
+}
+
+.table tr:last-child td {
+    border-bottom: none; /* Elimina borde de la última fila */
+}
+/* Esto para la Linea de tabla el separador */
+
+
 .table th {
     font-weight: 600;
     text-transform: uppercase;
@@ -54,8 +66,15 @@ h1 {
     vertical-align: middle;
 }
 
+/* Interacciones en la tabla */
+/* 
 .table tbody tr {
     transition: all 0.3s ease;
+}
+*/
+/* Interacciones en la tabla */
+.table tbody tr {
+    animation: fadeIn 0.15s ease forwards;
 }
 
 .table tbody tr:hover {
@@ -151,8 +170,8 @@ h1 {
     padding: 0.5rem;
     background-color: white;
     border-radius: 8px;
-    display: inline-block;
-    float: right;
+    display: flex;
+    justify-content: flex-end;
 }
 
 /* Estilos para los elementos de pedido */
@@ -189,10 +208,11 @@ h1 {
     padding: 8px 12px;
     border-radius: 6px;
     transition: all 0.2s ease;
+    background-color: #FFD036;
 }
 
 .product-item:hover {
-    background-color: rgba(255,107,53,0.1);
+    background-color: #2EC4B6;
 }
 
 .product-name {
@@ -204,7 +224,7 @@ h1 {
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 500;
 }
 
