@@ -8,6 +8,14 @@
     --background-light: #F7F9FC;  /* Gris claro */
 }
 
+/* Ocultar el botón de prueba de sonido, si se quiere usar solo comentar esta linea */
+#testSoundBtn {
+    display: none;
+}
+
+
+
+
 body {
     background-color: var(--background-light);
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -325,4 +333,32 @@ h1 {
 .date-filters label {
     color: var(--text-dark);
     font-weight: 500;
+}
+
+/* Estilos para las observaciones */
+.observation-container {
+    max-width: 250px;
+    padding: 0.5rem;
+}
+
+.observation-text {
+    background-color: #dc3545;  /* Fondo azul muy claro */
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #ffffff;  /* Texto azul oscuro */
+    line-height: 1.4;
+    display: block;
+    word-wrap: break-word;
+    max-height: 80px;
+    overflow-y: auto;
+    border: 1px solid #dc3545;  /* Borde azul claro */
+    text-transform: uppercase;  /* Texto en mayúsculas */
+}
+
+.no-observation {
+    color: #6c757d;  /* Gris medio para texto sin observaciones */
+    font-style: italic;
+    font-size: 0.9rem;
+    text-transform: uppercase;  /* Texto en mayúsculas */
 }

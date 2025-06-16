@@ -1,9 +1,15 @@
+import { playNewOrderSound, testSound } from './pedidos_sound.js';
+
 // Lógica específica para la vista de pedidos
 let currentPage = 1;
 let currentFilters = {
     fechaInicio: null,
     fechaFin: null
 };
+
+// Variables para el control de pedidos
+let lastPedidosData = [];
+let isFirstLoad = true;
 
 // Funciones para manejar pedidos
 async function fetchPedidos(page, callback) {
@@ -21,6 +27,27 @@ async function fetchPedidos(page, callback) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         const data = await response.json();
+        
+        // Only check for new orders and play sound if we're on the first page
+        // and it's not the first load or a page navigation
+        if (!isFirstLoad && page === 1) {
+            const newPedidosCount = comparePedidos(lastPedidosData, data.pedidos || []);
+            console.log(`Nuevos pedidos detectados: ${newPedidosCount}`);
+            
+            if (newPedidosCount > 0) {
+                console.log('¡Nuevos pedidos! Reproduciendo sonido...');
+                await playNewOrderSound();
+            }
+        } else {
+            console.log('Primera carga o navegación de página, no reproducir sonido');
+            if (isFirstLoad) isFirstLoad = false;
+        }
+        
+        // Only update lastPedidosData when we're on the first page
+        if (page === 1) {
+            lastPedidosData = data.pedidos || [];
+        }
+
         callback({
             pedidos: data.pedidos,
             totalPages: data.totalPages || 1
@@ -89,13 +116,16 @@ function renderPedidos(pedidos, tableBodyId) {
                         <i class="fas fa-user-circle"></i>
                         <span>${pedido.cliente || 'N/A'}</span>
                     </div>
-                </td>
-                <td>
+                </td>                <td>
                     <div class="products-container">
                         ${productList}
                     </div>
                 </td>
-
+                <td>
+                    <div class="observation-container">
+                        ${pedido.observaciones ? `<div class="observation-text" title="${pedido.observaciones}">${pedido.observaciones}</div>` : '<span class="no-observation">Sin observaciones</span>'}
+                    </div>
+                </td>
                 <td>
                     <div class="date-info" title="${formattedDate}">
                         <i class="far fa-clock"></i>
@@ -138,6 +168,12 @@ function updateLastUpdated() {
 
 // Función para inicializar los event listeners
 function initializeEventListeners() {
+    // Agregar el evento para el botón de prueba de sonido
+    document.getElementById('testSoundBtn').addEventListener('click', async () => {
+        console.log('Probando sonido...');
+        await testSound();
+    });
+
     document.getElementById('prevPage').addEventListener('click', () => {
         if (currentPage > 1) {
             currentPage--;
@@ -226,6 +262,14 @@ function getTimeAgo(date) {
     } else {
         return date.toLocaleDateString();
     }
+}
+
+function comparePedidos(oldPedidos, newPedidos) {
+    const oldIds = oldPedidos.map(p => `${p.cliente}-${p.producto}-${p.fecha}`);
+    const newIds = newPedidos.map(p => `${p.cliente}-${p.producto}-${p.fecha}`);
+    
+    // Encontrar pedidos que están en newIds pero no en oldIds
+    return newIds.filter(id => !oldIds.includes(id)).length;
 }
 
 // Esperar a que el DOM esté completamente cargado

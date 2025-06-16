@@ -33,7 +33,8 @@ const pedidosController = {
             p.fecha,
             GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
             f.factura_id AS 'Factura ID',
-            p.estado
+            p.estado,
+            p.observaciones
         FROM 
             pv_mchicken.pedidos p
         JOIN 
@@ -47,7 +48,7 @@ const pedidosController = {
         WHERE 
             ${whereClause}
         GROUP BY
-            f.factura_id, c.nombre_razon_social, p.fecha, p.estado
+            f.factura_id, c.nombre_razon_social, p.fecha, p.estado, p.observaciones
         ORDER BY
             p.fecha DESC
         LIMIT ? OFFSET ?;
