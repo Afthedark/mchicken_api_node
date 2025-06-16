@@ -23,33 +23,53 @@
    ```
 
 2. 🛠️ Comandos disponibles:
-   - 🟢 `npm run start` - Inicia la aplicación con PM2
+   - 🟢 `npm run start` - Inicia la aplicación en modo producción con PM2
+   - 🟢 `npm run start:dev` - Inicia la aplicación en modo desarrollo con PM2
    - 🔴 `npm run stop` - Detiene la aplicación
-   - 🔄 `npm run restart` - Reinicia la aplicación
-   - 📋 `npm run logs` - Muestra los logs de la aplicación
+   - 🔄 `npm run restart` - Reinicia completamente la aplicación
+   - 🔄 `npm run reload` - Recarga la aplicación sin tiempo de inactividad
+   - 📋 `npm run logs` - Muestra los logs en tiempo real de la aplicación
    - 📊 `npm run status` - Muestra el estado actual de la aplicación
+   - 📈 `npm run monit` - Abre el monitor de recursos de PM2
    - 🗑️ `npm run delete` - Elimina la aplicación de PM2
 
-3. Inicio Automático:
-   - Se debe incluir el archivo `startup_api_chicken_node.bat` en la carpeta de inicio de Windows
-   - En la ruta: `C:\Users\[Usuario]\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
-   - Este script verifica automáticamente:
-     * La instalación de Node.js
-     * La instalación de PM2 (lo instala si falta)
-     * Inicia la aplicación usando la configuración de PM2
-   - No es necesario hacer nada más para el inicio automático, el sistema se iniciará solo al arrancar Windows
+3. 🔍 Monitoreo y Diagnóstico:
+   - 📊 Ver el estado de la aplicación:
+     ```
+     npm run status
+     ```
+   - 📈 Monitorear recursos en tiempo real:
+     ```
+     npm run monit
+     ```
+   - 📋 Ver logs en tiempo real:
+     ```
+     npm run logs
+     ```
+   - 🔄 Recargar sin downtime:
+     ```
+     npm run reload
+     ```
 
-4. 📊 Monitoreo:
-   - 💻 PM2 proporciona monitoreo de memoria y CPU
-   - 📂 Los logs se almacenan en la carpeta `logs/`
-   - 📝 `app.log` contiene los logs generales
-   - ⚠️ `error.log` contiene los errores
+4. 📂 Estructura de Logs:
+   - 📝 Los logs generales se encuentran en: `logs/app-1.log`
+   - ⚠️ Los errores se registran en: `logs/error-1.log`
+   - 🔄 Los logs se rotan automáticamente para mantener el espacio en disco
 
 5. ⚙️ Configuración:
    - 📄 La configuración de PM2 se encuentra en `ecosystem.config.js`
+   - 👀 El modo watch está activado para detectar cambios automáticamente
    - 🔄 El servidor se ejecuta en modo `fork`
-   - 🔁 Reinicio automático en caso de fallos
-   - 💾 Límite de memoria: 1GB
+   - 🔒 La aplicación se reinicia automáticamente en caso de errores
+   - 💾 Límite de memoria configurado a 1GB
+
+6. 🚀 Inicio Automático:
+   - Se debe incluir el archivo `startup_api_chicken_node.bat` en la carpeta de inicio de Windows
+   - Ruta: `C:\Users\[Usuario]\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
+   - El script verifica e inicia automáticamente:
+     * La instalación de Node.js
+     * La instalación de PM2
+     * La aplicación usando la configuración de PM2
 
 ### 🏠 Acceso Local
 - 🌐 Acceder a la interfaz web en `http://localhost:3000`
@@ -98,3 +118,63 @@
   2. Verificar los logs con `npm run logs`
   3. Intentar reiniciar con `npm run restart`
   4. En caso necesario, eliminar y volver a crear el proceso con `npm run delete` seguido de `npm run start`
+
+## 🔧 Solución de Problemas Comunes
+
+### 🔄 Cambios de Desarrollo no Funcionan en Producción
+Si los cambios que funcionan con `node server.js` no se reflejan en producción con PM2, sigue estos pasos:
+
+1. 🛑 Detener completamente PM2:
+   ```powershell
+   pm2 delete all
+   ```
+
+2. 🧹 Limpiar los logs:
+   ```powershell
+   pm2 flush
+   ```
+
+3. 🗑️ Eliminar archivos de logs antiguos:
+   ```powershell
+   del logs\*.log
+   ```
+
+4. 🚀 Reiniciar la aplicación en modo producción:
+   ```powershell
+   npm run start
+   ```
+
+5. 📋 Verificar el estado:
+   ```powershell
+   npm run status
+   ```
+
+6. 👀 Monitorear logs en tiempo real:
+   ```powershell
+   npm run logs
+   ```
+
+### 📝 Verificación Adicional
+Si los problemas persisten:
+
+1. 🔍 Revisar los logs de error:
+   ```powershell
+   type logs\error-1.log
+   ```
+
+2. 📊 Monitorear el uso de recursos:
+   ```powershell
+   npm run monit
+   ```
+
+3. 🔄 Intentar un reload en lugar de restart:
+   ```powershell
+   npm run reload
+   ```
+
+### ⚠️ Notas Importantes
+- Asegúrate de que PM2 esté usando la configuración correcta del `ecosystem.config.js`
+- El modo watch debe estar activo para detectar cambios automáticamente
+- Los archivos ignorados en `ignore_watch` no triggearán reinicios
+- Los cambios en archivos estáticos pueden requerir un `reload` manual
+- En caso de problemas de memoria, revisa `max_memory_restart` en `ecosystem.config.js`

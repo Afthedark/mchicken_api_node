@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name: "mchicken-api",
     script: "./server.js",
-    watch: false,
+    watch: true,
     env: {
       "NODE_ENV": "development",
       "PORT": 3000
@@ -16,9 +16,25 @@ module.exports = {
     autorestart: true,
     max_memory_restart: "1G",
     log_date_format: "YYYY-MM-DD HH:mm:ss",
-    out_file: "./logs/app.log",
-    error_file: "./logs/error.log",
-    ignore_watch: ["node_modules", "logs"],
+    out_file: "./logs/app-1.log",
+    error_file: "./logs/error-1.log",
+    merge_logs: true,
+    watch: [
+      "server.js",
+      "controllers",
+      "routes",
+      "public"
+    ],
+    ignore_watch: [
+      "node_modules",
+      "logs",
+      ".git",
+      "*.log"
+    ],
+    watch_options: {
+      "followSymlinks": false,
+      "usePolling": true
+    },
     max_restarts: 10,
     restart_delay: 4000
   }]

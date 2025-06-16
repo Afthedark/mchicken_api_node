@@ -2,15 +2,19 @@
   "name": "mchicken_api_node",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "pm2 start ecosystem.config.js",
+    "dev": "node server.js",
+    "start": "pm2 start ecosystem.config.js --env production",
+    "start:dev": "pm2 start ecosystem.config.js --env development",
     "stop": "pm2 stop mchicken-api",
     "restart": "pm2 restart mchicken-api",
+    "reload": "pm2 reload mchicken-api",
     "logs": "pm2 logs mchicken-api",
     "status": "pm2 status mchicken-api",
-    "delete": "pm2 delete mchicken-api"
+    "delete": "pm2 delete mchicken-api",
+    "monit": "pm2 monit mchicken-api"
   },
   "keywords": [],
   "author": "",
