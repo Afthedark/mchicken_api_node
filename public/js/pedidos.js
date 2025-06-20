@@ -159,13 +159,19 @@ function renderPedidos(pedidos, tableBodyId) {
 
 function updatePageInfo(currentPage, totalPages) {
     const pageInfo = document.getElementById('pageInfo');
-    const pageNumberInput = document.getElementById('pageNumberInput');
+    const pageNumberSelect = document.getElementById('pageNumberSelect');
     if (pageInfo) {
         pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
     }
-    if (pageNumberInput) {
-        pageNumberInput.value = currentPage;
-        pageNumberInput.max = totalPages;
+    if (pageNumberSelect) {
+        pageNumberSelect.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+            if (i === currentPage) option.selected = true;
+            pageNumberSelect.appendChild(option);
+        }
     }
 }
 
@@ -192,25 +198,23 @@ function initializeEventListeners() {
     });
 
     document.getElementById('nextPage').addEventListener('click', () => {
-        if (currentPage < parseInt(document.getElementById('pageNumberInput').max)) {
+        const pageNumberSelect = document.getElementById('pageNumberSelect');
+        if (currentPage < parseInt(pageNumberSelect.options[pageNumberSelect.options.length-1].value)) {
             currentPage++;
             loadPedidos();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
-    document.getElementById('goToPage').addEventListener('click', () => {
-        const pageNumber = parseInt(document.getElementById('pageNumberInput').value);
-        if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= parseInt(document.getElementById('pageNumberInput').max)) {
-            currentPage = pageNumber;
+    document.getElementById('pageNumberSelect').addEventListener('change', (e) => {
+        const selectedPage = parseInt(e.target.value);
+        if (!isNaN(selectedPage)) {
+            currentPage = selectedPage;
             loadPedidos();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            alert('Por favor, introduce un número de página válido.');
         }
     });
 
-    // Nuevos event listeners para los filtros de fecha
     document.getElementById('filtrarFechas').addEventListener('click', () => {
         currentFilters.fechaInicio = document.getElementById('fechaInicio').value;
         currentFilters.fechaFin = document.getElementById('fechaFin').value;
