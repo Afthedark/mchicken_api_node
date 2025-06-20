@@ -32,6 +32,7 @@ const pedidosController = {
             GROUP_CONCAT(i.descripcion SEPARATOR ', ') AS producto,
             p.fecha,
             GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
+            GROUP_CONCAT(lpf.llevar SEPARATOR ', ') AS llevar, -- Nueva columna
             f.factura_id AS 'Factura ID',
             p.estado,
             p.observaciones
@@ -50,7 +51,7 @@ const pedidosController = {
         GROUP BY
             f.factura_id, c.nombre_razon_social, p.fecha, p.estado, p.observaciones
         ORDER BY
-            p.fecha DESC
+            p.fecha ASC
         LIMIT ? OFFSET ?;
         `;
         

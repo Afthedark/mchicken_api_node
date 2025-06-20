@@ -122,6 +122,11 @@ function renderPedidos(pedidos, tableBodyId) {
                     </div>
                 </td>
                 <td>
+                    <div class="type-pedido-container">
+                        <span class="${pedido.llevar === '1' ? 'tipo-llevar' : 'tipo-mesa'}">${pedido.llevar === '1' ? 'Para Llevar' : 'Para la mesa'}</span>
+                    </div>
+                </td>
+                <td>
                     <div class="observation-container">
                         ${pedido.observaciones ? `<div class="observation-text" title="${pedido.observaciones}">${pedido.observaciones}</div>` : '<span class="no-observation">Sin observaciones</span>'}
                     </div>
@@ -154,8 +159,13 @@ function renderPedidos(pedidos, tableBodyId) {
 
 function updatePageInfo(currentPage, totalPages) {
     const pageInfo = document.getElementById('pageInfo');
+    const pageNumberInput = document.getElementById('pageNumberInput');
     if (pageInfo) {
         pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+    }
+    if (pageNumberInput) {
+        pageNumberInput.value = currentPage;
+        pageNumberInput.max = totalPages;
     }
 }
 
@@ -182,9 +192,22 @@ function initializeEventListeners() {
     });
 
     document.getElementById('nextPage').addEventListener('click', () => {
-        currentPage++;
-        loadPedidos();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (currentPage < parseInt(document.getElementById('pageNumberInput').max)) {
+            currentPage++;
+            loadPedidos();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    document.getElementById('goToPage').addEventListener('click', () => {
+        const pageNumber = parseInt(document.getElementById('pageNumberInput').value);
+        if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= parseInt(document.getElementById('pageNumberInput').max)) {
+            currentPage = pageNumber;
+            loadPedidos();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            alert('Por favor, introduce un número de página válido.');
+        }
     });
 
     // Nuevos event listeners para los filtros de fecha
