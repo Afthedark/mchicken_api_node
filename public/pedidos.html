@@ -22,6 +22,9 @@
                         <i class="fas fa-volume-up me-1"></i>
                         Probar Sonido
                     </button>
+                    <button id="configBtn" class="btn btn-outline-secondary me-3" title="Configuraciones">
+                        <i class="fas fa-cog"></i>
+                    </button>
                     <div id="ultimoActualizado">
                         <i class="fas fa-sync-alt me-1"></i>
                         <!-- La última actualización se mostrará aquí -->
@@ -118,6 +121,34 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- Modal de Configuración -->
+    <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="configModalLabel"><i class="fas fa-cog me-2"></i>Configuraciones</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div id="configPasswordSection">
+              <label for="configPassword" class="form-label">Ingrese la contraseña para acceder:</label>
+              <input type="password" class="form-control mb-2" id="configPassword" placeholder="Contraseña">
+              <div id="configPasswordError" class="text-danger mb-2" style="display:none;">Contraseña incorrecta</div>
+              <button id="configPasswordBtn" class="btn btn-primary w-100">Acceder</button>
+            </div>
+            <div id="configContent" style="display:none;">
+              <div class="form-check form-switch my-3 text-center">
+                <input class="form-check-input" type="checkbox" id="switchPedidosHoy">
+                <label class="form-check-label" for="switchPedidosHoy">Solo mostrar pedidos de hoy</label>
+              </div>
+              <p class="mb-0">¡Bienvenido a las configuraciones!</p>
+              <!-- Aquí puedes agregar más opciones de configuración -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <audio id="newOrderAudio" src="/assets/sounds/alerta1.mp3" preload="auto" style="display:none;"></audio>

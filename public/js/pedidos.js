@@ -15,13 +15,23 @@ let isFirstLoad = true;
 async function fetchPedidos(page, callback) {
     try {
         let url = `/pedidos?page=${page}`;
-        if (currentFilters.fechaInicio) {
-            url += `&fechaInicio=${currentFilters.fechaInicio}`;
+        // Si el switch está activo, forzar filtro de hoy
+        if (typeof getPedidosHoySwitch === 'function' && getPedidosHoySwitch()) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const fechaHoy = `${yyyy}-${mm}-${dd}`;
+            url += `&fechaInicio=${fechaHoy}`;
+            url += `&fechaFin=${fechaHoy}`;
+        } else {
+            if (currentFilters.fechaInicio) {
+                url += `&fechaInicio=${currentFilters.fechaInicio}`;
+            }
+            if (currentFilters.fechaFin) {
+                url += `&fechaFin=${currentFilters.fechaFin}`;
+            }
         }
-        if (currentFilters.fechaFin) {
-            url += `&fechaFin=${currentFilters.fechaFin}`;
-        }
-        
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -297,6 +307,66 @@ function comparePedidos(oldPedidos, newPedidos) {
     
     // Encontrar pedidos que están en newIds pero no en oldIds
     return newIds.filter(id => !oldIds.includes(id)).length;
+}
+
+// Configuración modal y contraseña + switch de pedidos de hoy
+const configBtn = document.getElementById('configBtn');
+const configModal = new bootstrap.Modal(document.getElementById('configModal'));
+const configPasswordSection = document.getElementById('configPasswordSection');
+const configContent = document.getElementById('configContent');
+const configPasswordInput = document.getElementById('configPassword');
+const configPasswordBtn = document.getElementById('configPasswordBtn');
+const configPasswordError = document.getElementById('configPasswordError');
+const switchPedidosHoy = document.getElementById('switchPedidosHoy');
+
+function getPedidosHoySwitch() {
+    // Por defecto, si no existe el valor en localStorage, el switch está activado (true)
+    const val = localStorage.getItem('soloPedidosHoy');
+    return val === null ? true : val === 'true';
+}
+function setPedidosHoySwitch(val) {
+    localStorage.setItem('soloPedidosHoy', val ? 'true' : 'false');
+}
+
+if (configBtn) {
+    configBtn.addEventListener('click', () => {
+        configPasswordSection.style.display = '';
+        configContent.style.display = 'none';
+        configPasswordInput.value = '';
+        configPasswordError.style.display = 'none';
+        configModal.show();
+        // Actualizar el estado del switch al abrir el modal
+        setTimeout(() => {
+            if (switchPedidosHoy) {
+                switchPedidosHoy.checked = getPedidosHoySwitch();
+            }
+        }, 200);
+    });
+}
+
+if (configPasswordBtn) {
+    configPasswordBtn.addEventListener('click', () => {
+        if (configPasswordInput.value === 'dev123++') {
+            configPasswordSection.style.display = 'none';
+            configContent.style.display = '';
+            configPasswordError.style.display = 'none';
+            if (switchPedidosHoy) {
+                switchPedidosHoy.checked = getPedidosHoySwitch();
+            }
+        } else {
+            configPasswordError.style.display = '';
+        }
+    });
+    configPasswordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') configPasswordBtn.click();
+    });
+}
+
+if (switchPedidosHoy) {
+    switchPedidosHoy.addEventListener('change', (e) => {
+        setPedidosHoySwitch(e.target.checked);
+        loadPedidos();
+    });
 }
 
 // Esperar a que el DOM esté completamente cargado

@@ -191,8 +191,8 @@ h1 {
 
 /* Estilos para la nueva columna 'Tipo Pedido' */
 .tipo-llevar {
-    background-color: #FFCE32; /* Amarillo */
-    color: #333333;
+    background-color: #FF6B35; /* Amarillo */
+    color: #ffffff;
     padding: 0.3em 0.6em;
     border-radius: 5px;
     font-weight: 500;
@@ -381,4 +381,51 @@ h1 {
     font-style: italic;
     font-size: 0.9rem;
     text-transform: uppercase;  /* Texto en mayúsculas */
+}
+
+/* Estilos para el botón y modal de configuración */
+#configBtn {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+#configModal .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+#configModal .modal-title {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+#configModal .form-label {
+    font-weight: 500;
+}
+#configModal .btn-primary {
+    background: var(--primary-color);
+    border: none;
+}
+#configModal .btn-primary:hover {
+    background: var(--secondary-color);
+}
+#configPasswordError {
+    font-size: 0.95rem;
+}
+#configContent {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+}
+#switchPedidosHoy {
+    margin-right: 10px;
+}
+#configModal .form-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+}
+#configModal .form-switch .form-check-label {
+    margin-left: 0.5rem;
+    color: var(--text-dark);
 }
