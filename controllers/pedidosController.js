@@ -2,9 +2,6 @@ const db = require('../config/db');
 
 const pedidosController = {
     obtenerPedidos: (req, res) => {
-        const page = parseInt(req.query.page) || 1;
-        const limit = 10;
-        const offset = (page - 1) * limit;
         const fechaInicio = req.query.fechaInicio;
         const fechaFin = req.query.fechaFin;
         
@@ -25,7 +22,7 @@ const pedidosController = {
         
         const whereClause = whereClauses.join(" AND ");
         
-        // Consulta para obtener los pedidos paginados
+        // Consulta para obtener todos los pedidos sin paginación
         const sqlQuery = `
         SELECT 
             c.nombre_razon_social AS cliente,
@@ -51,40 +48,14 @@ const pedidosController = {
         GROUP BY
             f.factura_id, c.nombre_razon_social, p.fecha, p.estado, p.observaciones
         ORDER BY
-            p.fecha ASC
-        LIMIT ? OFFSET ?;
-        `;
+            p.fecha ASC;`;
         
-        // Agregar los parámetros de limit y offset
-        params.push(limit, offset);
-        
-        // Consulta para contar el total de pedidos
-        const countQuery = `
-        SELECT COUNT(DISTINCT f.factura_id) as total 
-        FROM pv_mchicken.pedidos p
-        JOIN pv_mchicken.facturas f ON p.pedido_id = f.pedido_id
-        WHERE ${whereClause};
-        `;
-
-        db.query(countQuery, params.slice(0, -2), (err, countResult) => {
+        db.query(sqlQuery, params, (err, results) => {
             if (err) {
-                console.error('Error al contar pedidos:', err);
+                console.error('Error al obtener pedidos:', err);
                 return res.status(500).json({ error: 'Error interno del servidor' });
             }
-            
-            const totalItems = countResult[0].total;
-            const totalPages = Math.ceil(totalItems / limit);
-            
-            db.query(sqlQuery, params, (err, results) => {
-                if (err) {
-                    console.error('Error al obtener pedidos:', err);
-                    return res.status(500).json({ error: 'Error interno del servidor' });
-                }
-                res.json({
-                    pedidos: results,
-                    totalPages: totalPages
-                });
-            });
+            res.json({ pedidos: results });
         });
     }
 };

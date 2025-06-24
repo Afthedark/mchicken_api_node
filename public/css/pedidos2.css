@@ -1,0 +1,227 @@
+/* pedidos2.css - Estilos personalizados para las tarjetas de pedidos */
+
+:root {
+    --primary-color: #FF6B35;
+    --secondary-color: #2EC4B6;
+    --accent-color: #FFCE32;
+}
+
+body {
+  background: #fffbe6;
+  color: #222; /* Texto principal más oscuro */
+}
+
+.pedido-card {
+  border-radius: 1rem;
+  border: 3px solid #FF6B35;
+  background: #fff;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 18px 0 rgba(46,196,182,0.10);
+  transition: box-shadow 0.3s, border 0.3s, filter 0.3s;
+  opacity: 0;
+  transform: translateY(30px) scale(0.98);
+  animation: cardFadeIn 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  will-change: transform, box-shadow, filter;
+}
+.pedido-card.pulse {
+  animation: cardPulse 0.5s cubic-bezier(0.4, 0, 0.6, 1);
+}
+.pedido-card:hover {
+  border-color: #FF6B35;
+  box-shadow: 0 24px 48px 0 rgba(255,107,53,0.22);
+  filter: brightness(1.06);
+  cursor: pointer;
+}
+.pedido-header {
+  background: var(--primary-color);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 1rem 1rem 0 0;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+.pedido-footer {
+  background: #fffbe6;
+  border-radius: 0 0 1rem 1rem;
+  font-size: 1rem;
+  color: #222; /* Texto más oscuro en el footer */
+  padding: 0.7rem 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-title {
+  color: #222; /* Título de tarjeta más oscuro */
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+.badge.bg-warning {
+  background: var(--accent-color) !important;
+  color: #222 !important; /* Texto oscuro en badge warning */
+}
+.badge.bg-info {
+  background: var(--secondary-color) !important;
+  color: #fff !important;
+}
+.badge.bg-success {
+  background: var(--primary-color) !important;
+  color: #fff !important;
+}
+.badge.bg-secondary {
+  background: var(--secondary-color) !important;
+  color: #fff !important;
+}
+.badge.bg-light {
+  background: #fffbe6 !important;
+  color: #222 !important; /* Texto oscuro en badge light */
+  border: 1px solid var(--accent-color);
+}
+.table-sm th, .table-sm td {
+  padding: 0.4rem 0.7rem;
+  font-size: 1rem;
+  vertical-align: middle;
+  text-align: left;
+}
+.table-sm thead th {
+  background: var(--secondary-color);
+  color: #fff;
+  border-bottom: 2px solid var(--primary-color);
+  text-align: center;
+  font-size: 1rem;
+}
+.table-sm tbody tr {
+  background: #fff;
+}
+.table-sm tbody tr:nth-child(even) {
+  background: #f7f7f7;
+}
+.btn-success {
+  background: var(--secondary-color);
+  border: none;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(46,196,182,0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+  padding: 0.6rem 0;
+  border-radius: 0.6rem;
+}
+.btn-success:hover {
+  background: var(--primary-color);
+  box-shadow: 0 4px 16px 0 rgba(255,107,53,0.13);
+}
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.tipo-pedido-llevar {
+  color: #fff;
+  background: var(--primary-color);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.7rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
+.tipo-pedido-mesa {
+  color: #fff;
+  background: var(--secondary-color);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.7rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
+.obs-text {
+  color: #ffffff; /* Observaciones en texto oscuro */
+  font-style: italic;
+  font-size: 1rem;
+  background: #dc3545;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  display: inline-block;
+  margin-top: 0.2rem;
+  border: 1px solid #dc3545;
+}
+
+/* Resalta la cantidad en productos y cantidades */
+.cantidad-badge {
+  display: inline-block;
+  background: var(--primary-color);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-radius: 1.2rem;
+  padding: 0.25rem 1.1rem;
+  box-shadow: 0 2px 8px 0 rgba(255,107,53,0.10);
+  letter-spacing: 1px;
+  margin-left: 0.2rem;
+}
+
+/* Resalta el nombre del producto y las rejillas de la tabla de productos */
+.producto-nombre {
+  font-weight: bold;
+  color: var(--primary-color);
+  letter-spacing: 1px;
+  font-size: 1.08rem;
+}
+.tabla-productos th, .tabla-productos td {
+  border: 2px solid #FF6B35 !important;
+  background: #fffbe6;
+}
+.tabla-productos th {
+  background: var(--secondary-color);
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+}
+.tabla-productos {
+  border-radius: 0.7rem;
+  overflow: hidden;
+}
+
+@keyframes cardFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.pedido-card.fade-out {
+  animation: cardFadeOut 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes cardFadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(40px) scale(0.92);
+    filter: blur(4px);
+  }
+}
+
+@keyframes cardPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
