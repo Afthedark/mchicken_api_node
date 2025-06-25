@@ -23,9 +23,6 @@ body {
   animation: cardFadeIn 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
   will-change: transform, box-shadow, filter;
 }
-.pedido-card.pulse {
-  animation: cardPulse 0.5s cubic-bezier(0.4, 0, 0.6, 1);
-}
 .pedido-card:hover {
   border-color: #FF6B35;
   box-shadow: 0 24px 48px 0 rgba(255,107,53,0.22);
@@ -211,17 +208,19 @@ body {
   }
 }
 
-@keyframes cardPulse {
+@keyframes hoverSimpleAnim {
   0% {
+    box-shadow: 0 4px 18px 0 rgba(46,196,182,0.10);
     transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.08);
-    opacity: 1;
   }
   100% {
-    transform: scale(1.04);
-    opacity: 1;
+    box-shadow: 0 16px 32px 0 rgba(255,107,53,0.18);
+    transform: scale(1.025);
   }
+}
+.pedido-card.hover-simple {
+  animation: hoverSimpleAnim 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+  box-shadow: 0 16px 32px 0 rgba(255,107,53,0.18);
+  transform: scale(1.025);
+  z-index: 2;
 }

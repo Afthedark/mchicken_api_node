@@ -9,6 +9,7 @@ let todosLosPedidos = [];
 let paginaActual = 1;
 const pedidosPorPagina = 20;
 let totalPaginas = 1;
+let filtroHoyActivo = true;
 
 // Agregar el CSS personalizado de pedidos2.css
 const head = document.head || document.getElementsByTagName('head')[0];
@@ -17,6 +18,10 @@ link.rel = 'stylesheet';
 link.type = 'text/css';
 link.href = '/css/pedidos2.css';
 head.appendChild(link);
+
+// Sonido de alerta para nuevos pedidos
+const alertaAudio = new Audio('/assets/sounds/alerta1.mp3');
+let ultimosIdsPedidos = [];
 
 function estadoBadge(estado) {
     if (!estado || estado.toLowerCase() === 'concluido') return '';
@@ -49,7 +54,21 @@ function tiempoRelativo(fecha) {
   return fechaPedido.toLocaleString().toUpperCase();
 }
 
-function crearTarjetaPedido(pedido) {
+function getPedidoIdUnico(pedido) {
+    let id = pedido["Factura ID"];
+    if (id && id.toString().trim() !== "") return id.toString();
+    // Si no hay Factura ID, usa hash de fecha+cliente+productos
+    let base = (pedido.fecha || '') + '|' + (pedido.cliente || '') + '|' + (pedido.producto || '') + '|' + (pedido.cantidad || '');
+    // Hash simple para evitar caracteres raros
+    let hash = 0;
+    for (let i = 0; i < base.length; i++) {
+        hash = ((hash << 5) - hash) + base.charCodeAt(i);
+        hash |= 0;
+    }
+    return `sinid-${Math.abs(hash)}`;
+}
+
+function crearTarjetaPedido(pedido, idx) {
     // Unificar productos y cantidades en una tabla
     let productos = (pedido.producto || '').split(',');
     let cantidades = (pedido.cantidad || '').split(',');
@@ -81,11 +100,15 @@ function crearTarjetaPedido(pedido) {
     }
     // Mostrar observaciones en mayúsculas o 'SIN OBSERVACIONES' si está vacío
     let obs = (pedido.observaciones && pedido.observaciones.trim()) ? pedido.observaciones.toUpperCase() : 'SIN OBSERVACIONES';
+    let pedidoIdUnico = getPedidoIdUnico(pedido);
+    // Si el filtro de hoy está activo, usar idx+1 como contador visible, si no mostrar el ID real
+    let contador = filtroHoyActivo ? (idx + 1) : (pedido["Factura ID"] || '').toString().toUpperCase();
+    // Elimina clases de animación previas si existen (para evitar conflictos)
     return `
-    <div class="col-md-6 col-lg-4" id="pedido-${pedido["Factura ID"]}">
-        <div class="card pedido-card shadow-sm animate__animated animate__fadeInUp">
+    <div class="col-md-6 col-lg-4" id="pedido-${pedidoIdUnico}">
+        <div class="card pedido-card shadow-sm">
             <div class="card-header pedido-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-hashtag me-1"></i> ${(pedido["Factura ID"] || '').toString().toUpperCase()}</span>
+                <span><i class="fas fa-hashtag me-1"></i> ${contador}</span>
                 ${estadoBadge(pedido.estado)}
             </div>
             <div class="card-body">
@@ -96,7 +119,7 @@ function crearTarjetaPedido(pedido) {
                 </div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-box-open me-1"></i> TIPO PEDIDO</span><span class="ps-2 ${tipoPedidoClass}">${tipoPedido}</span></div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-comment-alt me-1"></i> OBSERVACIONES</span><br><span class="ps-2 obs-text">${obs}</span></div>
-                <button class="btn btn-success mt-3 w-100 shadow-sm fw-semibold" onclick="marcarPedidoCompletado('${pedido["Factura ID"]}')">
+                <button class="btn btn-success mt-3 w-100 shadow-sm fw-semibold" onclick="marcarPedidoCompletado('${pedidoIdUnico}')">
                     <i class="fas fa-check-circle me-1"></i> MARCAR PEDIDO COMO COMPLETADO
                 </button>
             </div>
@@ -112,14 +135,23 @@ function crearTarjetaPedido(pedido) {
 function renderPaginador() {
     const paginador = document.getElementById('paginadorPedidos');
     if (!paginador) return;
+    let opcionesPaginas = '';
+    for (let i = 1; i <= totalPaginas; i++) {
+        opcionesPaginas += `<option value="${i}"${i === paginaActual ? ' selected' : ''}>${i}</option>`;
+    }
     paginador.innerHTML = `
         <nav aria-label="Paginador de pedidos">
-            <ul class="pagination justify-content-center">
+            <ul class="pagination justify-content-center align-items-center">
                 <li class="page-item${paginaActual === 1 ? ' disabled' : ''}">
                     <button class="page-link" id="btnAnterior">Anterior</button>
                 </li>
                 <li class="page-item disabled">
                     <span class="page-link">Página ${paginaActual} de ${totalPaginas}</span>
+                </li>
+                <li class="page-item">
+                    <select id="selectPagina" class="form-select form-select-sm mx-2" style="width:auto;display:inline-block;">
+                        ${opcionesPaginas}
+                    </select>
                 </li>
                 <li class="page-item${paginaActual === totalPaginas ? ' disabled' : ''}">
                     <button class="page-link" id="btnSiguiente">Siguiente</button>
@@ -139,6 +171,13 @@ function renderPaginador() {
             renderPedidos();
         }
     };
+    const selectPagina = document.getElementById('selectPagina');
+    if (selectPagina) {
+        selectPagina.addEventListener('change', function() {
+            paginaActual = parseInt(this.value, 10);
+            renderPedidos();
+        });
+    }
 }
 
 function renderPedidos() {
@@ -151,8 +190,24 @@ function renderPedidos() {
     const inicio = (paginaActual - 1) * pedidosPorPagina;
     const fin = inicio + pedidosPorPagina;
     const pedidosPagina = todosLosPedidos.slice(inicio, fin);
-    tarjetasPedidos.innerHTML = pedidosPagina.map(crearTarjetaPedido).join('');
+    tarjetasPedidos.innerHTML = pedidosPagina.map((pedido, idx) => crearTarjetaPedido(pedido, idx)).join('');
+    // Limpia clases de animación innecesarias
+    setTimeout(() => {
+      document.querySelectorAll('.pedido-card').forEach(card => {
+        card.classList.remove('fade-out', 'pulse', 'hover-simple', 'animate__animated', 'animate__fadeInUp');
+        card.style.opacity = '';
+        card.style.transform = '';
+      });
+    }, 10);
     renderPaginador();
+}
+
+function actualizarUltimaActualizacion() {
+  const el = document.getElementById('ultimaActualizacion');
+  if (el) {
+    const ahora = new Date();
+    el.textContent = `Última actualización: ${ahora.toLocaleString()}`;
+  }
 }
 
 async function cargarPedidos() {
@@ -162,25 +217,55 @@ async function cargarPedidos() {
     try {
         const res = await axios.get(`${API_URL}`);
         let completados = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
-        todosLosPedidos = (res.data.pedidos || res.data).filter(p => !completados.includes(p["Factura ID"]?.toString()));
+        let pedidos = (res.data.pedidos || res.data);
+        if (filtroHoyActivo) {
+            const ahora = new Date();
+            const inicioDia = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 1, 0, 0, 0); // 1:00 AM hoy
+            pedidos = pedidos.filter(p => {
+                if (!p.fecha) return false;
+                const fechaPedido = new Date(p.fecha);
+                return fechaPedido >= inicioDia && fechaPedido <= ahora;
+            });
+        }
+        // Generar ids únicos para todos los pedidos
+        todosLosPedidos = pedidos.filter((p) => {
+            const idUnico = getPedidoIdUnico(p);
+            return !completados.includes(idUnico);
+        });
+        // Detectar nuevos pedidos
+        const idsActuales = todosLosPedidos.map((p) => getPedidoIdUnico(p));
+        const nuevos = idsActuales.filter(id => !ultimosIdsPedidos.includes(id));
+        if (ultimosIdsPedidos.length > 0 && nuevos.length > 0) {
+            alertaAudio.currentTime = 0;
+            alertaAudio.play();
+        }
+        ultimosIdsPedidos = idsActuales;
         // Si la página actual es mayor al total de páginas, volver a la última
         totalPaginas = Math.ceil(todosLosPedidos.length / pedidosPorPagina) || 1;
         if (paginaActual > totalPaginas) {
             paginaActual = totalPaginas;
         }
         renderPedidos();
+        actualizarUltimaActualizacion();
         // Restaurar posición de scroll después de renderizar
         window.scrollTo({ top: scrollY, behavior: 'auto' });
     } catch (err) {
         tarjetasPedidos.innerHTML = '<div class="alert alert-danger w-100">Error al cargar pedidos.</div>';
         renderPaginador();
+        actualizarUltimaActualizacion();
     }
 }
 
 window.marcarPedidoCompletado = function(facturaId) {
     const card = document.getElementById(`pedido-${facturaId}`);
     if (card) {
-        card.classList.add('fade-out');
+        const innerCard = card.querySelector('.pedido-card');
+        if (innerCard) {
+            // Elimina animaciones previas antes de fade-out
+            innerCard.classList.remove('pulse');
+            void innerCard.offsetWidth;
+            innerCard.classList.add('fade-out');
+        }
         setTimeout(() => {
             card.remove();
             // Guardar el ID como completado en localStorage
@@ -189,34 +274,47 @@ window.marcarPedidoCompletado = function(facturaId) {
                 completados.push(facturaId);
                 localStorage.setItem('pedidosCompletados', JSON.stringify(completados));
             }
-        }, 500);
+            cargarPedidos();
+        }, 600);
     }
 };
 
-// Animación pulse en hover usando JS para evitar conflicto con la animación de entrada
-function addPulseAnimation() {
-  tarjetasPedidos.addEventListener('mouseenter', function(e) {
-    const card = e.target.closest('.pedido-card');
-    if (card) {
-      card.classList.add('pulse');
+// Animación sencilla al pasar el mouse sobre la tarjeta
+function addCardHoverAnimation() {
+  tarjetasPedidos.addEventListener('mouseover', function(e) {
+    if (e.target.classList.contains('pedido-card')) {
+      e.target.classList.add('hover-simple');
     }
-  }, true);
-  tarjetasPedidos.addEventListener('mouseleave', function(e) {
-    const card = e.target.closest('.pedido-card');
-    if (card) {
-      card.classList.remove('pulse');
+  });
+  tarjetasPedidos.addEventListener('mouseout', function(e) {
+    if (e.target.classList.contains('pedido-card')) {
+      e.target.classList.remove('hover-simple');
     }
-  }, true);
-  tarjetasPedidos.addEventListener('animationend', function(e) {
-    if (e.animationName === 'cardPulse') {
-      e.target.classList.remove('pulse');
-    }
-  }, true);
+  });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Restaurar el estado del filtro desde localStorage
+  const filtroHoySwitch = document.getElementById('ajustesFiltroHoy');
+  const filtroHoyGuardado = localStorage.getItem('filtroHoyActivo');
+  if (filtroHoySwitch) {
+    if (filtroHoyGuardado !== null) {
+      filtroHoyActivo = filtroHoyGuardado === 'true';
+      filtroHoySwitch.checked = filtroHoyActivo;
+    } else {
+      filtroHoyActivo = true;
+      filtroHoySwitch.checked = true;
+      localStorage.setItem('filtroHoyActivo', 'true');
+    }
+    filtroHoySwitch.addEventListener('change', function() {
+      filtroHoyActivo = filtroHoySwitch.checked;
+      localStorage.setItem('filtroHoyActivo', filtroHoyActivo);
+      paginaActual = 1;
+      cargarPedidos();
+    });
+  }
   cargarPedidos();
-  addPulseAnimation();
+  addCardHoverAnimation();
   setInterval(() => {
     cargarPedidos();
   }, 8000); // Actualiza cada 8 segundos

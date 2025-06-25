@@ -31,6 +31,28 @@
             to { opacity: 0; transform: scale(0.95) translateY(30px); }
         }
         .pagination .page-link { border-radius: 0.5rem !important; }
+        .pagination .form-select {
+            width: auto;
+            min-width: 60px;
+            display: inline-block;
+            margin: 0 8px;
+            padding: 0.15rem 1.5rem 0.15rem 0.75rem;
+            font-size: 0.95rem;
+            border-radius: 0.5rem;
+            border: 1px solid #dee2e6;
+            background-color: #fffbe6;
+            color: #222;
+            box-shadow: 0 1px 4px rgba(255,179,71,0.08);
+            vertical-align: middle;
+        }
+        .pagination .form-select:focus {
+            border-color: #ffb347;
+            box-shadow: 0 0 0 0.15rem rgba(255,179,71,0.15);
+        }
+        .pagination .form-select option {
+            background: #fffbe6;
+            color: #222;
+        }
         .main-title {
             background: linear-gradient(90deg, #ffb347 60%, #ffe5b4 100%);
             border-radius: 1rem;
@@ -47,9 +69,7 @@
                 Pedidos a Preparar
             </h1>
             <div class="d-flex align-items-center gap-2">
-                <button id="refreshBtn" class="btn btn-outline-primary shadow-sm px-4 py-2">
-                    <i class="fas fa-sync-alt me-1"></i>Actualizar
-                </button>
+                <span id="ultimaActualizacion" class="text-secondary small"></span>
                 <button id="ajustesBtn" class="btn btn-light shadow-sm px-2 py-2 ms-2" title="Ajustes">
                     <i class="fas fa-cog"></i>
                 </button>
@@ -70,19 +90,12 @@
               </div>
               <div class="modal-body">
                 <div class="mb-3">
-                  <label class="form-label">Tema visual</label>
-                  <select class="form-select" disabled>
-                    <option>Claro (predeterminado)</option>
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Notificaciones de sonido</label>
+                  <label class="form-label">Filtrar pedidos del día (En Adelante)</label>
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="ajustesSonido" checked disabled>
-                    <label class="form-check-label" for="ajustesSonido">Activadas</label>
+                    <input class="form-check-input" type="checkbox" id="ajustesFiltroHoy" checked>
+                    <label class="form-check-label" for="ajustesFiltroHoy">Mostrar solo pedidos de hoy</label>
                   </div>
                 </div>
-                <div class="text-muted small">(Opciones de ejemplo. Puedes personalizar este menú.)</div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
