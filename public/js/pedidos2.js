@@ -213,6 +213,9 @@ function actualizarUltimaActualizacion() {
 async function cargarPedidos() {
     // Guardar posición de scroll antes de actualizar
     const scrollY = window.scrollY;
+    // Animación de fade suave
+    tarjetasPedidos.classList.add('fade-soft');
+    setTimeout(() => { tarjetasPedidos.classList.remove('fade-soft'); }, 400);
     tarjetasPedidos.innerHTML = '<div class="text-center w-100 py-5"><div class="spinner-border" role="status"></div></div>';
     try {
         const res = await axios.get(`${API_URL}`);

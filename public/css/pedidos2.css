@@ -261,6 +261,15 @@ body {
   display: inline-block;
 }
 
+/* --- Animación de actualización suave para tarjetas de pedidos --- */
+#tarjetasPedidos.fade-soft {
+  opacity: 0.5;
+  transition: opacity 0.4s cubic-bezier(0.4,0,0.6,1);
+}
+#tarjetasPedidos {
+  transition: opacity 0.4s cubic-bezier(0.4,0,0.6,1);
+}
+
 @keyframes cardFadeIn {
   0% {
     opacity: 0;
