@@ -181,6 +181,86 @@ body {
   overflow: hidden;
 }
 
+/* --- Paginador Mejorado (más visible y compacto) --- */
+#paginadorPedidos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.pagination {
+  background: #fffbe6;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 16px rgba(46,196,182,0.13);
+  padding: 0.4rem 1.1rem;
+  display: flex;
+  gap: 0.18rem;
+  border: 2px solid #2EC4B6;
+}
+.pagination .page-item {
+  margin: 0 0.08rem;
+}
+.pagination .page-link {
+  border: 1.5px solid #FFCE32;
+  border-radius: 0.7rem !important;
+  background: #2EC4B6;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.35rem 1rem;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, border 0.2s;
+  box-shadow: 0 1px 6px rgba(46,196,182,0.13);
+  letter-spacing: 0.5px;
+  outline: none;
+}
+.pagination .page-link:hover, .pagination .page-link:focus {
+  background: #FFCE32;
+  color: #2EC4B6;
+  border-color: #2EC4B6;
+  box-shadow: 0 2px 8px rgba(255,206,50,0.13);
+}
+.pagination .active .page-link {
+  background: #FFCE32 !important;
+  color: #2EC4B6 !important;
+  border-color: #2EC4B6 !important;
+  box-shadow: 0 2px 8px rgba(255,206,50,0.16);
+}
+.pagination .disabled .page-link {
+  background: #e0e0e0;
+  color: #000000;
+  opacity: 0.7;
+  border-color: #e0e0e0;
+}
+.pagination .form-select {
+  border-radius: 0.7rem;
+  border: 1.5px solid #FFCE32;
+  background: #fffbe6;
+  color: #2EC4B6;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0 0.3rem;
+  box-shadow: 0 1px 4px rgba(255,206,50,0.08);
+  padding: 0.2rem 0.7rem;
+}
+.pagination .form-select:focus {
+  border-color: #2EC4B6;
+  box-shadow: 0 0 0 0.12rem rgba(46,196,182,0.13);
+}
+#paginadorPedidos .paginador-info, .paginador-info {
+  background: #184d47;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1rem;
+  border-radius: 0.7rem;
+  padding: 0.3rem 1rem;
+  margin: 0 0.5rem;
+  box-shadow: 0 1px 6px rgba(24,77,71,0.13);
+  letter-spacing: 0.5px;
+  border: 1.5px solid #2EC4B6;
+  display: inline-block;
+}
+
 @keyframes cardFadeIn {
   0% {
     opacity: 0;
@@ -223,4 +303,29 @@ body {
   box-shadow: 0 16px 32px 0 rgba(255,107,53,0.18);
   transform: scale(1.025);
   z-index: 2;
+}
+
+.ultima-actualizacion-ui {
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #FF6B35;
+    background: #fffbe6;
+    border: 2px solid #FFCE32;
+    border-radius: 0.7rem;
+    padding: 0.35rem 1.1rem 0.35rem 0.9rem;
+    box-shadow: 0 2px 8px rgba(255,179,71,0.10);
+    margin-right: 0.5rem;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, color 0.2s;
+}
+.ultima-actualizacion-ui::before {
+    content: '\f017'; /* FontAwesome reloj */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-right: 0.7rem;
+    font-size: 1.3em;
+    color: #FF6B35;
+    opacity: 0.85;
 }

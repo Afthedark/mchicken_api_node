@@ -59,6 +59,20 @@
             padding: 0.5rem 1.5rem;
             box-shadow: 0 2px 8px rgba(255,179,71,0.08);
         }
+        .ultima-actualizacion-ui {
+            background: #fffbe6;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(255,179,71,0.1);
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .ultima-actualizacion-ui i {
+            margin-right: 0.5rem;
+            color: #ffb347;
+        }
     </style>
 </head>
 <body>
@@ -69,7 +83,9 @@
                 Pedidos a Preparar
             </h1>
             <div class="d-flex align-items-center gap-2">
-                <span id="ultimaActualizacion" class="text-secondary small"></span>
+                <span id="ultimaActualizacion" class="ultima-actualizacion-ui">
+                    <!-- El JS coloca aquí la fecha -->
+                </span>
                 <button id="ajustesBtn" class="btn btn-light shadow-sm px-2 py-2 ms-2" title="Ajustes">
                     <i class="fas fa-cog"></i>
                 </button>
@@ -89,11 +105,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
               </div>
               <div class="modal-body">
-                <div class="mb-3">
-                  <label class="form-label">Filtrar pedidos del día (En Adelante)</label>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="ajustesFiltroHoy" checked>
-                    <label class="form-check-label" for="ajustesFiltroHoy">Mostrar solo pedidos de hoy</label>
+                <div id="ajustesPasswordSection">
+                  <label class="form-label">Ingrese contraseña para acceder a los ajustes:</label>
+                  <input type="password" class="form-control mb-2" id="ajustesPasswordInput" placeholder="Contraseña">
+                  <div id="ajustesPasswordError" class="text-danger mb-2" style="display:none;">Contraseña incorrecta</div>
+                  <button type="button" class="btn btn-primary w-100" id="ajustesPasswordBtn">Acceder</button>
+                </div>
+                <div id="ajustesOpcionesSection" style="display:none;">
+                  <div class="mb-3">
+                    <label class="form-label">Filtrar pedidos del día (En Adelante)</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="ajustesFiltroHoy" checked>
+                      <label class="form-check-label" for="ajustesFiltroHoy">Mostrar solo pedidos de hoy</label>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -107,5 +131,46 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="/js/pedidos2.js"></script>
+    <script>
+    // Lógica de autenticación para el modal de ajustes
+    (function() {
+      const ajustesBtn = document.getElementById('ajustesBtn');
+      const ajustesModal = document.getElementById('ajustesModal');
+      const passwordSection = document.getElementById('ajustesPasswordSection');
+      const opcionesSection = document.getElementById('ajustesOpcionesSection');
+      const passwordInput = document.getElementById('ajustesPasswordInput');
+      const passwordBtn = document.getElementById('ajustesPasswordBtn');
+      const passwordError = document.getElementById('ajustesPasswordError');
+      let accesoConcedido = false;
+
+      if (ajustesBtn && ajustesModal) {
+        ajustesBtn.addEventListener('click', function() {
+          accesoConcedido = false;
+          passwordSection.style.display = '';
+          opcionesSection.style.display = 'none';
+          passwordInput.value = '';
+          passwordError.style.display = 'none';
+        });
+      }
+      if (passwordBtn) {
+        passwordBtn.addEventListener('click', function() {
+          if (passwordInput.value === 'dev2512++') {
+            accesoConcedido = true;
+            passwordSection.style.display = 'none';
+            opcionesSection.style.display = '';
+          } else {
+            passwordError.style.display = '';
+            passwordInput.value = '';
+          }
+        });
+      }
+      // Permitir Enter para enviar
+      if (passwordInput) {
+        passwordInput.addEventListener('keyup', function(e) {
+          if (e.key === 'Enter') passwordBtn.click();
+        });
+      }
+    })();
+    </script>
 </body>
 </html>
