@@ -316,6 +316,56 @@ window.addEventListener('DOMContentLoaded', () => {
       cargarPedidos();
     });
   }
+
+  // --- LIMPIEZA AUTOMÁTICA DE LOCALSTORAGE SIEMPRE ACTIVA ---
+  const notificacionLimpieza = document.getElementById('limpiezaNotificacion');
+  const LIMPIAR_FECHA_KEY = 'ultimaLimpiezaLocalStorage';
+
+  function limpiarLocalStoragePedidos(automatico = true) {
+    // Borra claves relacionadas a pedidos completados y filtros
+    localStorage.removeItem('pedidosCompletados');
+    localStorage.removeItem('completedOrders');
+    localStorage.removeItem('filtroHoyActivo');
+    localStorage.setItem(LIMPIAR_FECHA_KEY, new Date().toISOString().slice(0,10));
+    if (notificacionLimpieza) {
+      notificacionLimpieza.textContent = automatico ? 'Memoria limpiada automáticamente para el nuevo día.' : 'Memoria limpiada manualmente.';
+      notificacionLimpieza.style.display = '';
+      setTimeout(() => { notificacionLimpieza.style.display = 'none'; }, 3000);
+    }
+  }
+
+  // Al cargar, si es un nuevo día, limpiar (pero nunca el primer día de uso)
+  (function() {
+    const ultimaLimpieza = localStorage.getItem(LIMPIAR_FECHA_KEY);
+    const hoy = new Date().toISOString().slice(0,10);
+    if (!ultimaLimpieza) {
+      // Primera vez: solo registrar la fecha, NO limpiar
+      localStorage.setItem(LIMPIAR_FECHA_KEY, hoy);
+    } else if (ultimaLimpieza !== hoy) {
+      limpiarLocalStoragePedidos(true);
+    }
+  })();
+
+  // Programar limpieza diaria a las 12:00 am (siempre activa)
+  function programarLimpiezaDiaria() {
+    const ahora = new Date();
+    const manana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 1, 0, 0, 5, 0); // 12:00:05 am
+    const msHastaManana = manana - ahora;
+    setTimeout(() => {
+      limpiarLocalStoragePedidos(true);
+      programarLimpiezaDiaria();
+    }, msHastaManana);
+  }
+  programarLimpiezaDiaria();
+
+  // El switch queda solo informativo y siempre activado
+  const limpiarSwitch = document.getElementById('ajustesLimpiarLocalStorage');
+  if (limpiarSwitch) {
+    limpiarSwitch.checked = true;
+    limpiarSwitch.disabled = true;
+    limpiarSwitch.parentElement.classList.add('opacity-50');
+    limpiarSwitch.title = 'Esta función está siempre activa para evitar saturación.';
+  }
   cargarPedidos();
   addCardHoverAnimation();
   setInterval(() => {
