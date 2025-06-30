@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos Unificados - Mama Chicken</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; font-family: 'Poppins', sans-serif; }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 100vw;
+            width: 100vw;
+            padding-left: 1.5vw !important;
+            padding-right: 1.5vw !important;
+        }
+        .iframe-container {
+            display: flex;
+            flex-direction: row;
+            gap: 0;
+            margin-top: 0.5rem;
+            height: 88vh;
+            flex-wrap: wrap;
+            background: #fffbe6;
+            border-radius: 1.2rem;
+            box-shadow: 0 4px 24px rgba(255,179,71,0.10), 0 1.5px 0 #ffb347 inset;
+            overflow: hidden;
+            border: 2px solid #ffb347;
+        }
+        .iframe-box {
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            min-width: 320px;
+            max-width: 100vw;
+            height: 100%;
+            flex: 1 1 0;
+            position: relative;
+        }
+        .iframe-box:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 4%;
+            right: 0;
+            width: 2px;
+            height: 92%;
+            background: linear-gradient(to bottom, #ffb347 80%, transparent 100%);
+            z-index: 2;
+        }
+        .iframe-title {
+            font-weight: 600;
+            font-size: 1.12rem;
+            margin: 0.5rem 0 0.2rem 0;
+            color: #d17b00;
+            text-align: center;
+            letter-spacing: 0.5px;
+            background: transparent;
+            border-radius: 0;
+            padding: 0.3rem 0 0.1rem 0;
+            border-bottom: none;
+        }
+        .iframe-label {
+            display: none;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 60vh;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            flex: 1 1 auto;
+        }
+        @media (max-width: 1200px) {
+            .iframe-container {
+                flex-direction: column;
+                height: auto;
+            }
+            .iframe-box {
+                min-width: 0;
+                width: 100%;
+                height: 44vh;
+                margin-bottom: 0;
+                padding: 0;
+            }
+            .iframe-box:not(:last-child)::after {
+                content: "";
+                position: absolute;
+                left: 4%;
+                bottom: 0;
+                width: 92%;
+                height: 2px;
+                background: linear-gradient(to right, #ffb347 80%, transparent 100%);
+                z-index: 2;
+                top: auto;
+                right: auto;
+            }
+            .iframe-title { font-size: 1.08rem; }
+            iframe {
+                height: 100%;
+                min-height: 32vh;
+                border-radius: 0;
+            }
+        }
+        @media (max-width: 900px) {
+            .iframe-title { font-size: 1.03rem; }
+            .iframe-box {
+                height: 40vh;
+                margin-bottom: 1rem;
+                padding: 0.1rem 0.2rem 0.3rem 0.2rem;
+            }
+            iframe {
+                min-height: 26vh;
+            }
+        }
+        @media (max-width: 700px) {
+            .iframe-title { font-size: 0.98rem; }
+            .iframe-box {
+                height: 38vh;
+                min-width: 0;
+                width: 100vw;
+                border-radius: 0.7rem;
+                margin-bottom: 0.7rem;
+                padding: 0.1rem 0.2rem 0.3rem 0.2rem;
+            }
+            iframe {
+                height: 100%;
+                min-height: 30vh;
+                border-radius: 0.5rem;
+            }
+            .container { padding-left: 0.5vw !important; padding-right: 0.5vw !important; }
+        }
+        @media (max-width: 480px) {
+            .iframe-title { font-size: 0.93rem; }
+            .iframe-box {
+                height: 32vh;
+                margin-bottom: 0.5rem;
+                padding: 0.05rem 0.05rem 0.2rem 0.05rem;
+            }
+            iframe {
+                min-height: 20vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="mb-4 text-center" style="background: linear-gradient(90deg, #ffb347 60%, #ffe5b4 100%); border-radius: 1rem; padding: 0.5rem 1.5rem; box-shadow: 0 2px 8px rgba(255,179,71,0.08); font-weight:700; letter-spacing:1px;">
+            <i class="fas fa-utensils me-2"></i>Pedidos a preparar Cocina - Central Sur
+        </h1>
+        <div class="iframe-container">
+            <div class="iframe-box">
+                <div class="iframe-label">
+                    <i class="fas fa-store"></i>
+                    <span class="iframe-title">Punto de Venta A</span>
+                </div>
+                <iframe src="http://172.21.25.249:3000/pedidos2.html" allowfullscreen title="Pedidos Punto de Venta A"></iframe>
+            </div>
+            <div class="iframe-box">
+                <div class="iframe-label">
+                    <i class="fas fa-store"></i>
+                    <span class="iframe-title">Punto de Venta B</span>
+                </div>
+                <iframe src="http://172.21.25.248:3000/pedidos2.html" allowfullscreen title="Pedidos Punto de Venta B"></iframe>
+            </div>
+        </div>
+    </div>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</body>
+</html>
