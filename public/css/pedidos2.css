@@ -1,0 +1,93 @@
+/* Última actualización: más grande en desktop */
+#ultimaActualizacion {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.2em;
+}
+@media (min-width: 768px) {
+  #ultimaActualizacion {
+    font-size: 1.45rem;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    gap: 1.2em;
+  }
+}
+body {
+  font-family: 'Poppins', sans-serif;
+}
+/* Animación pop al marcar completado */
+.animate-complete-pop {
+  animation: complete-pop 0.12s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes complete-pop {
+  0% { transform: scale(1); }
+  80% { transform: scale(1.12); }
+  100% { transform: scale(1.04); }
+}
+
+/* Animación shrink al marcar completado */
+.animate-complete-shrink {
+  animation: complete-shrink 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes complete-shrink {
+  0% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0.7; }
+}
+
+/* Fade out final */
+.fade-out {
+  animation: fadeOutPedido 0.35s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes fadeOutPedido {
+  0% { opacity: 0.7; transform: scale(0.85); }
+  100% { opacity: 0; transform: scale(0.7); }
+}
+/* Fondo transparente y difuminado para el modal de ajustes */
+#ajustesModal {
+  background-color: rgba(0,0,0,0.18) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background-color 0.3s;
+}
+
+/* Animación fade-in-up para tarjetas */
+.animate-fade-in-up {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* Animación pulse rápida para hover */
+.animate-pulse-fast {
+  animation: pulse-fast 0.5s;
+}
+@keyframes pulse-fast {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,0.3); }
+  50% { transform: scale(1.04); box-shadow: 0 4px 24px 0 rgba(34,197,94,0.15); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34,197,94,0.0); }
+}
+
+/* Animación pulse lenta para observaciones */
+.animate-pulse-slow {
+  animation: pulse-slow 2.2s infinite;
+}
+@keyframes pulse-slow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+
+/* Animación pop para botón */
+.animate-btn-pop {
+  animation: btn-pop 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes btn-pop {
+  0% { transform: scale(0.95); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+

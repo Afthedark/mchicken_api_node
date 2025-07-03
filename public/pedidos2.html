@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos a Preparar (Tarjetas) - Mama Chicken</title>
+    <!-- Bootstrap eliminado, migrado a Tailwind -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/pedidos2.css">
+    <style>
+      /* Fuente principal movida a pedidos2.css */
+    </style>
+</head>
+<body>
+    <div class="max-w-6xl mx-auto py-4 px-2">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+            <h1 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-yellow-200 to-yellow-100 rounded-xl px-6 py-2 shadow">
+                <i class="fas fa-utensils text-orange-500"></i>
+                Pedidos a Preparar
+            </h1>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full max-w-md">
+                <span id="ultimaActualizacion" class="flex-1 text-center sm:text-left bg-yellow-50 border-2 border-yellow-300 rounded-lg px-4 py-2 font-bold text-orange-600 shadow text-base">
+                    <!-- El JS coloca aquí la fecha -->
+                </span>
+                <button id="btnProbarSonidoMain" class="bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold rounded-lg shadow px-3 py-2 w-full sm:w-auto min-w-[44px] transition-colors" title="Probar sonido">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button id="ajustesBtn" class="bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg shadow px-3 py-2 w-full sm:w-auto min-w-[44px] border border-gray-300 transition-colors" title="Ajustes">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+        <div id="tarjetasPedidos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Las tarjetas de pedidos se cargarán aquí -->
+        </div>
+        <div id="paginadorPedidos" class="mt-6"></div>
+
+        <!-- Modal de Ajustes -->
+        <!-- Modal de Ajustes (Tailwind) -->
+        <div id="ajustesModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-20 backdrop-blur-sm transition-all duration-300 hidden">
+          <div class="bg-white rounded-xl shadow-lg w-full max-w-md mx-auto p-0 relative" style="backdrop-filter:none;">
+            <div class="flex items-center justify-between px-5 py-3 border-b">
+              <h5 class="text-lg font-semibold flex items-center gap-2"><i class="fas fa-cog text-gray-500"></i>Ajustes</h5>
+              <button type="button" id="ajustesCerrarBtn" class="text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none">&times;</button>
+            </div>
+            <div class="px-5 py-4">
+              <div id="ajustesPasswordSection">
+                <label class="block font-medium mb-2">Ingrese contraseña para acceder a los ajustes:</label>
+                <input type="password" id="ajustesPasswordInput" placeholder="Contraseña" class="w-full border rounded-lg px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                <div id="ajustesPasswordError" class="text-red-600 mb-2 text-sm hidden">Contraseña incorrecta</div>
+                <button type="button" id="ajustesPasswordBtn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold rounded-lg px-3 py-2 mt-1 transition-colors">Acceder</button>
+              </div>
+              <div id="ajustesOpcionesSection" style="display:none;">
+                <div class="mb-4">
+                  <label class="block font-medium mb-1">Filtrar pedidos del día (En Adelante)</label>
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" id="ajustesFiltroHoy" class="h-5 w-5 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400" checked>
+                    <label for="ajustesFiltroHoy" class="text-gray-700">Mostrar solo pedidos de hoy</label>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="block font-medium mb-1">Limpiar memoria localStorage automáticamente</label>
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" id="ajustesLimpiarLocalStorage" class="h-5 w-5 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400">
+                    <label for="ajustesLimpiarLocalStorage" class="text-gray-700">Limpiar memoria cada día a las 12 am</label>
+                  </div>
+                  <div id="limpiezaNotificacion" class="text-green-600 mt-2 text-sm hidden"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end px-5 py-3 border-t">
+              <button type="button" id="ajustesCerrarBtnFooter" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg px-4 py-2 transition-colors">Cerrar</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <!-- FOOTER Y CRÉDITOS VISIBLES Y MODERNOS -->
+    <footer class="w-full text-center py-6 mt-12 text-sm font-medium bg-gradient-to-t from-orange-50 via-white to-transparent border-t border-orange-200 shadow-inner">
+      <div class="flex flex-col items-center gap-1">
+        <span class="text-orange-600 font-bold tracking-wide">&copy; <span id="footerYear"></span> Mama Chicken </span>
+        <span class="text-gray-500 text-xs">Todos los derechos reservados.</span>
+        <span class="inline-flex items-center gap-1 mt-1 text-[12px] text-cyan-700/80 hover:text-cyan-700 transition">
+          <svg width="16" height="16" fill="currentColor" class="inline-block align-middle opacity-70" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.1 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.09.16 1.9.08 2.1.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          <a href="https://github.com/Afthedark" target="_blank" rel="noopener" class="underline underline-offset-2 decoration-cyan-400 hover:decoration-cyan-600 font-semibold">Desarrollado por Afthedark</a>
+        </span>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      // Año dinámico para el footer
+      document.addEventListener('DOMContentLoaded', function() {
+        var y = document.getElementById('footerYear');
+        if (y) y.textContent = new Date().getFullYear();
+      });
+    </script>
+    <!-- Bootstrap JS eliminado -->
+    <script type="module" src="/js/pedidos2.js"></script>
+    <script>
+    // Botón para probar sonido de alerta (solo en vista principal)
+    document.addEventListener('DOMContentLoaded', function() {
+      const btnProbarSonidoMain = document.getElementById('btnProbarSonidoMain');
+      function playAlerta() {
+        const audio = new Audio('/assets/sounds/alerta1.mp3');
+        audio.currentTime = 0;
+        audio.play();
+      }
+      if (btnProbarSonidoMain) {
+        btnProbarSonidoMain.addEventListener('click', playAlerta);
+      }
+    });
+    </script>
+    <script>
+    // Lógica de autenticación y apertura/cierre para el modal de ajustes (Tailwind)
+    (function() {
+      const ajustesBtn = document.getElementById('ajustesBtn');
+      const ajustesModal = document.getElementById('ajustesModal');
+      const passwordSection = document.getElementById('ajustesPasswordSection');
+      const opcionesSection = document.getElementById('ajustesOpcionesSection');
+      const passwordInput = document.getElementById('ajustesPasswordInput');
+      const passwordBtn = document.getElementById('ajustesPasswordBtn');
+      const passwordError = document.getElementById('ajustesPasswordError');
+      const cerrarBtn = document.getElementById('ajustesCerrarBtn');
+      const cerrarBtnFooter = document.getElementById('ajustesCerrarBtnFooter');
+      let accesoConcedido = false;
+
+      function abrirModal() {
+        ajustesModal.classList.remove('hidden');
+        ajustesModal.setAttribute('aria-modal', 'true');
+        ajustesModal.setAttribute('role', 'dialog');
+        document.body.classList.add('overflow-hidden');
+      }
+      function cerrarModal() {
+        ajustesModal.classList.add('hidden');
+        ajustesModal.removeAttribute('aria-modal');
+        ajustesModal.removeAttribute('role');
+        document.body.classList.remove('overflow-hidden');
+        // Resetear estado
+        accesoConcedido = false;
+        passwordSection.style.display = '';
+        opcionesSection.style.display = 'none';
+        passwordInput.value = '';
+        passwordError.classList.add('hidden');
+      }
+
+      if (ajustesBtn && ajustesModal) {
+        ajustesBtn.addEventListener('click', abrirModal);
+      }
+      if (cerrarBtn) {
+        cerrarBtn.addEventListener('click', cerrarModal);
+      }
+      if (cerrarBtnFooter) {
+        cerrarBtnFooter.addEventListener('click', cerrarModal);
+      }
+      if (passwordBtn) {
+        passwordBtn.addEventListener('click', function() {
+          if (passwordInput.value === 'dev2512++') {
+            accesoConcedido = true;
+            passwordSection.style.display = 'none';
+            opcionesSection.style.display = '';
+            passwordError.classList.add('hidden');
+          } else {
+            passwordError.classList.remove('hidden');
+            passwordInput.value = '';
+          }
+        });
+      }
+      // Permitir Enter para enviar
+      if (passwordInput) {
+        passwordInput.addEventListener('keyup', function(e) {
+          if (e.key === 'Enter') passwordBtn.click();
+        });
+      }
+      // Cerrar modal con Escape
+      document.addEventListener('keydown', function(e) {
+        if (!ajustesModal.classList.contains('hidden') && e.key === 'Escape') {
+          cerrarModal();
+        }
+      });
+      // Cerrar modal al hacer click fuera del contenido
+      ajustesModal.addEventListener('mousedown', function(e) {
+        if (e.target === ajustesModal) cerrarModal();
+      });
+    })();
+    </script>
+</body>
+</html>
