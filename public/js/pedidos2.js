@@ -20,7 +20,13 @@ link.href = '/css/pedidos2.css';
 head.appendChild(link);
 
 // Sonido de alerta para nuevos pedidos
-const alertaAudio = new Audio('/assets/sounds/alerta1.mp3');
+// Usar el <audio> global si existe, si no, crear uno
+let alertaAudio = null;
+if (window && document.getElementById('alertaAudio')) {
+  alertaAudio = document.getElementById('alertaAudio');
+} else {
+  alertaAudio = new Audio('/assets/sounds/alerta1.mp3');
+}
 let ultimosIdsPedidos = [];
 
 function estadoBadge(estado) {
@@ -118,7 +124,7 @@ function crearTarjetaPedido(pedido, idx) {
                     ${tablaProductos}
                 </div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-box-open me-1"></i> TIPO PEDIDO</span><span class="ps-2 ${tipoPedidoClass}">${tipoPedido}</span></div>
-                <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-comment-alt me-1"></i> OBSERVACIONES</span><br><span class="ps-2 obs-text">${obs}</span></div>
+                <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-comment-alt me-1"></i> OBSERVACION GENERAL</span><br><span class="ps-2 obs-text">${obs}</span></div>
                 <button class="btn btn-success mt-3 w-100 shadow-sm fw-semibold" onclick="marcarPedidoCompletado('${pedidoIdUnico}')">
                     <i class="fas fa-check-circle me-1"></i> MARCAR PEDIDO COMO COMPLETADO
                 </button>
@@ -238,9 +244,15 @@ async function cargarPedidos() {
         // Detectar nuevos pedidos
         const idsActuales = todosLosPedidos.map((p) => getPedidoIdUnico(p));
         const nuevos = idsActuales.filter(id => !ultimosIdsPedidos.includes(id));
-        if (ultimosIdsPedidos.length > 0 && nuevos.length > 0) {
-            alertaAudio.currentTime = 0;
-            alertaAudio.play();
+        // Solo sonar si el usuario habilitó el sonido
+        const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
+        if (ultimosIdsPedidos.length > 0 && nuevos.length > 0 && sonidoHabilitado) {
+            try {
+                alertaAudio.currentTime = 0;
+                alertaAudio.play();
+            } catch (e) {
+                // Si el navegador bloquea el sonido, ignorar
+            }
         }
         ultimosIdsPedidos = idsActuales;
         // Si la página actual es mayor al total de páginas, volver a la última

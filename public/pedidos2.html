@@ -139,6 +139,14 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="/js/pedidos2.js"></script>
+    <!-- Botón flotante para probar sonido y texto de ayuda -->
+    <div id="probarSonidoContainer" style="position: fixed; bottom: 32px; right: 32px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+      <span id="textoSonidoAyuda" style="background: #fffbe6; color: #222; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(255,179,71,0.10); padding: 0.5rem 1rem; font-size: 1rem; font-weight: 500; max-width: 260px; text-align: right;">¿No funciona el sonido? <b>Presiona aquí</b> <i class="fas fa-arrow-down"></i></span>
+      <button id="btnProbarSonido" title="Probar sonido de alerta" style="background: #ffb347; color: #222; border: none; border-radius: 50%; width: 64px; height: 64px; box-shadow: 0 4px 16px rgba(255,179,71,0.18); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+    <audio id="alertaAudio" src="/assets/sounds/alerta1.mp3" preload="auto"></audio>
     <script>
     // Lógica de autenticación para el modal de ajustes
     (function() {
@@ -178,6 +186,39 @@
           if (e.key === 'Enter') passwordBtn.click();
         });
       }
+    })();
+    // Botón flotante para probar sonido y activar preferencias
+    (function() {
+      const btnProbarSonido = document.getElementById('btnProbarSonido');
+      const alertaAudio = document.getElementById('alertaAudio');
+      if (!btnProbarSonido || !alertaAudio) return;
+
+      // Checar si el usuario ya permitió sonido
+      let sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
+
+      // Si ya está habilitado, cambiar color del botón y ocultar el texto
+      if (sonidoHabilitado) {
+        btnProbarSonido.style.background = '#28a745';
+        btnProbarSonido.style.color = '#fff';
+        const textoAyuda = document.getElementById('textoSonidoAyuda');
+        if (textoAyuda) textoAyuda.style.display = 'none';
+      }
+
+      btnProbarSonido.addEventListener('click', function() {
+        alertaAudio.currentTime = 0;
+        alertaAudio.play().then(() => {
+          // Guardar preferencia en localStorage
+          localStorage.setItem('sonidoHabilitadoPedidos', 'true');
+          btnProbarSonido.style.background = '#28a745';
+          btnProbarSonido.style.color = '#fff';
+          // Ocultar el texto de ayuda
+          const textoAyuda = document.getElementById('textoSonidoAyuda');
+          if (textoAyuda) textoAyuda.style.display = 'none';
+        }).catch(() => {
+          // Si hay error, probablemente el navegador bloqueó el sonido
+          alert('No se pudo reproducir el sonido. Verifique permisos del navegador.');
+        });
+      });
     })();
     </script>
 </body>
