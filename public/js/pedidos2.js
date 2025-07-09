@@ -78,38 +78,50 @@ function crearTarjetaPedido(pedido, idx) {
     // Unificar productos y cantidades en una tabla
     let productos = (pedido.producto || '').split(',');
     let cantidades = (pedido.cantidad || '').split(',');
-    let tablaProductos = '<table class="table table-sm tabla-productos mb-2"><thead><tr><th>PRODUCTO</th><th>CANTIDAD</th></tr></thead><tbody>';
+    let observacionesPorProducto = (pedido.observaciones_por_pedido || '').split(' | ');
+    if (!Array.isArray(productos)) productos = [];
+    if (!Array.isArray(cantidades)) cantidades = [];
+    if (!Array.isArray(observacionesPorProducto)) observacionesPorProducto = [];
+    let tablaProductos = '<table class="table table-sm tabla-productos mb-2"><thead><tr><th>PRODUCTO</th><th>CANTIDAD</th><th><span class="observacion-header">OBSERVACIÓN<br>PRODUCTO</span></th></tr></thead><tbody>';
     for (let i = 0; i < productos.length; i++) {
         const prod = productos[i] ? productos[i].trim().toUpperCase() : '';
         let cant = cantidades[i] ? cantidades[i].trim() : '';
-        // Mostrar cantidad solo como número entero
         if (cant && !isNaN(cant)) {
             cant = parseInt(cant);
         }
-        if (prod || cant) {
-            tablaProductos += `<tr><td class='producto-nombre'>${prod}</td><td><span class='cantidad-badge'>${cant}</span></td></tr>`;
+        // Observación por producto (si existe)
+        let obsProd = observacionesPorProducto[i] ? observacionesPorProducto[i].trim().toLowerCase() : '';
+        // Capitalizar la primera letra y poner en negrita
+        let obsProdFormatted = '';
+        if (obsProd) {
+            obsProdFormatted = `<strong>${obsProd.charAt(0).toUpperCase() + obsProd.slice(1)}</strong>`;
+        }
+        if (prod || cant || obsProd) {
+            tablaProductos += `<tr><td class='producto-nombre'>${prod}</td><td><span class='cantidad-badge'>${cant}</span></td><td class="observacion-celda">${obsProdFormatted}</td></tr>`;
         }
     }
     tablaProductos += '</tbody></table>';
     // Mostrar tipo de pedido como texto legible (solo el primer valor)
     let tipoPedido = '-';
     let tipoPedidoClass = '';
-    let primerLlevar = (pedido.llevar || '').split(',')[0]?.trim();
-    if (primerLlevar === '1' || primerLlevar === 1) {
+    let primerLlevar = (pedido.llevar !== undefined && pedido.llevar !== null) ? pedido.llevar.toString().split(',')[0]?.trim() : '';
+    if (primerLlevar === '1') {
         tipoPedido = 'PARA LLEVAR';
         tipoPedidoClass = 'tipo-pedido-llevar';
-    } else if (primerLlevar === '0' || primerLlevar === 0) {
+    } else if (primerLlevar === '0') {
         tipoPedido = 'PARA MESA';
         tipoPedidoClass = 'tipo-pedido-mesa';
     } else if (primerLlevar) {
         tipoPedido = primerLlevar.toUpperCase();
     }
     // Mostrar observaciones en mayúsculas o 'SIN OBSERVACIONES' si está vacío
-    let obs = (pedido.observaciones && pedido.observaciones.trim()) ? pedido.observaciones.toUpperCase() : 'SIN OBSERVACIONES';
+    let obs = (pedido['observacion general'] && pedido['observacion general'].trim()) ? pedido['observacion general'].toUpperCase() : 'SIN OBSERVACIONES';
     let pedidoIdUnico = getPedidoIdUnico(pedido);
     // Si el filtro de hoy está activo, usar idx+1 como contador visible, si no mostrar el ID real
     let contador = filtroHoyActivo ? (idx + 1) : (pedido["Factura ID"] || '').toString().toUpperCase();
     // Elimina clases de animación previas si existen (para evitar conflictos)
+    // Ya no mostramos observaciones por producto fuera de la tabla
+    let obsPorPedido = '';
     return `
     <div class="col-md-6 col-lg-4" id="pedido-${pedidoIdUnico}">
         <div class="card pedido-card shadow-sm">
@@ -125,6 +137,7 @@ function crearTarjetaPedido(pedido, idx) {
                 </div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-box-open me-1"></i> TIPO PEDIDO</span><span class="ps-2 ${tipoPedidoClass}">${tipoPedido}</span></div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-comment-alt me-1"></i> OBSERVACION GENERAL</span><br><span class="ps-2 obs-text">${obs}</span></div>
+                ${obsPorPedido}
                 <button class="btn btn-success mt-3 w-100 shadow-sm fw-semibold" onclick="marcarPedidoCompletado('${pedidoIdUnico}')">
                     <i class="fas fa-check-circle me-1"></i> MARCAR PEDIDO COMO COMPLETADO
                 </button>
@@ -155,7 +168,7 @@ function renderPaginador() {
                     <span class="page-link">Página ${paginaActual} de ${totalPaginas}</span>
                 </li>
                 <li class="page-item">
-                    <select id="selectPagina" class="form-select form-select-sm mx-2" style="width:auto;display:inline-block;">
+                    <select id="selectPagina" class="form-select form-select-sm mx-2 paginador-select-inline">
                         ${opcionesPaginas}
                     </select>
                 </li>

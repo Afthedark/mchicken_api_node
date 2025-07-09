@@ -77,19 +77,17 @@
 </head>
 <body>
     <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0 main-title">
+        <div class="header-responsive d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center mb-4 gap-2 gap-sm-0">
+            <h1 class="mb-0 main-title text-center text-sm-start w-100 w-sm-auto">
                 <i class="fas fa-utensils me-2"></i>
                 Pedidos a Preparar
             </h1>
-            <div class="d-flex align-items-center gap-2">
-                <span id="ultimaActualizacion" class="ultima-actualizacion-ui">
-                    <!-- El JS coloca aquí la fecha -->
-                </span>
-                <button id="ajustesBtn" class="btn btn-light shadow-sm px-2 py-2 ms-2" title="Ajustes">
-                    <i class="fas fa-cog"></i>
-                </button>
-            </div>
+            <span id="ultimaActualizacion" class="ultima-actualizacion-ui text-center text-sm-start w-100 w-sm-auto">
+                <!-- El JS coloca aquí la fecha -->
+            </span>
+            <button id="ajustesBtn" class="btn btn-light shadow-sm px-2 py-2 ms-0 ms-sm-2 w-100 w-sm-auto" title="Ajustes">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
         <div id="tarjetasPedidos" class="row">
             <!-- Las tarjetas de pedidos se cargarán aquí -->
@@ -140,13 +138,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="/js/pedidos2.js"></script>
     <!-- Botón flotante para probar sonido y texto de ayuda -->
-    <div id="probarSonidoContainer" style="position: fixed; bottom: 32px; right: 32px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
-      <span id="textoSonidoAyuda" style="background: #fffbe6; color: #222; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(255,179,71,0.10); padding: 0.5rem 1rem; font-size: 1rem; font-weight: 500; max-width: 260px; text-align: right;">¿No funciona el sonido? <b>Presiona aquí</b> <i class="fas fa-arrow-down"></i></span>
-      <button id="btnProbarSonido" title="Probar sonido de alerta" style="background: #ffb347; color: #222; border: none; border-radius: 50%; width: 64px; height: 64px; box-shadow: 0 4px 16px rgba(255,179,71,0.18); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;">
+    <div id="probarSonidoContainer">
+      <span id="textoSonidoAyuda">¿No funciona el sonido? <b>Presiona aquí</b> <i class="fas fa-arrow-down"></i></span>
+      <button id="btnProbarSonido" title="Probar sonido de alerta">
         <i class="fas fa-volume-up"></i>
       </button>
     </div>
     <audio id="alertaAudio" src="/assets/sounds/alerta1.mp3" preload="auto"></audio>
+    <audio id="alertaAudioTest" src="/assets/sounds/testsound.mp3" preload="auto"></audio>
     <script>
     // Lógica de autenticación para el modal de ajustes
     (function() {
@@ -191,7 +190,8 @@
     (function() {
       const btnProbarSonido = document.getElementById('btnProbarSonido');
       const alertaAudio = document.getElementById('alertaAudio');
-      if (!btnProbarSonido || !alertaAudio) return;
+      const alertaAudioTest = document.getElementById('alertaAudioTest');
+      if (!btnProbarSonido || !alertaAudio || !alertaAudioTest) return;
 
       // Checar si el usuario ya permitió sonido
       let sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
@@ -205,8 +205,8 @@
       }
 
       btnProbarSonido.addEventListener('click', function() {
-        alertaAudio.currentTime = 0;
-        alertaAudio.play().then(() => {
+        alertaAudioTest.currentTime = 0;
+        alertaAudioTest.play().then(() => {
           // Guardar preferencia en localStorage
           localStorage.setItem('sonidoHabilitadoPedidos', 'true');
           btnProbarSonido.style.background = '#28a745';
