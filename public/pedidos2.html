@@ -191,18 +191,17 @@
       const btnProbarSonido = document.getElementById('btnProbarSonido');
       const alertaAudio = document.getElementById('alertaAudio');
       const alertaAudioTest = document.getElementById('alertaAudioTest');
+      const textoAyuda = document.getElementById('textoSonidoAyuda');
       if (!btnProbarSonido || !alertaAudio || !alertaAudioTest) return;
 
-      // Checar si el usuario ya permitió sonido
-      let sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
-
-      // Si ya está habilitado, cambiar color del botón y ocultar el texto
-      if (sonidoHabilitado) {
-        btnProbarSonido.style.background = '#28a745';
-        btnProbarSonido.style.color = '#fff';
-        const textoAyuda = document.getElementById('textoSonidoAyuda');
-        if (textoAyuda) textoAyuda.style.display = 'none';
+      // Siempre mostrar como desactivado al recargar
+      btnProbarSonido.style.background = '#ffc107';
+      btnProbarSonido.style.color = '#222';
+      if (textoAyuda) {
+        textoAyuda.style.display = '';
+        textoAyuda.innerHTML = 'Sonido desactivado. <b>Presiona aquí para activar</b> <i class="fas fa-arrow-down"></i>';
       }
+      localStorage.setItem('sonidoHabilitadoPedidos', 'false');
 
       btnProbarSonido.addEventListener('click', function() {
         alertaAudioTest.currentTime = 0;
@@ -212,7 +211,6 @@
           btnProbarSonido.style.background = '#28a745';
           btnProbarSonido.style.color = '#fff';
           // Ocultar el texto de ayuda
-          const textoAyuda = document.getElementById('textoSonidoAyuda');
           if (textoAyuda) textoAyuda.style.display = 'none';
         }).catch(() => {
           // Si hay error, probablemente el navegador bloqueó el sonido
