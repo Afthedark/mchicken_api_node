@@ -139,9 +139,10 @@
     <script type="module" src="/js/pedidos2.js"></script>
     <!-- Botón flotante para probar sonido y texto de ayuda -->
     <div id="probarSonidoContainer">
-      <span id="textoSonidoAyuda">¿No funciona el sonido? <b>Presiona aquí</b> <i class="fas fa-arrow-down"></i></span>
+      <span id="textoSonidoAyuda" style="display: none;">Para recibir alertas, <b>active el sonido aquí</b> <i class="fas fa-arrow-down"></i></span>
       <button id="btnProbarSonido" title="Probar sonido de alerta">
-        <i class="fas fa-volume-up"></i>
+        <i class="fas fa-volume-up me-2"></i>
+        <span>Activar Sonido</span>
       </button>
     </div>
     <audio id="alertaAudio" src="/assets/sounds/alerta1.mp3" preload="auto"></audio>
@@ -194,24 +195,29 @@
       const textoAyuda = document.getElementById('textoSonidoAyuda');
       if (!btnProbarSonido || !alertaAudio || !alertaAudioTest) return;
 
-      // Siempre mostrar como desactivado al recargar
-      btnProbarSonido.style.background = '#ffc107';
-      btnProbarSonido.style.color = '#222';
-      if (textoAyuda) {
-        textoAyuda.style.display = '';
-        textoAyuda.innerHTML = 'Sonido desactivado. <b>Presiona aquí para activar</b> <i class="fas fa-arrow-down"></i>';
-      }
+      // Al cargar, el sonido está deshabilitado por defecto por políticas del navegador
       localStorage.setItem('sonidoHabilitadoPedidos', 'false');
+      
+      // Mostrar el texto de ayuda si el sonido no ha sido habilitado
+      if (localStorage.getItem('sonidoHabilitadoPedidos') !== 'true' && textoAyuda) {
+          textoAyuda.style.display = 'block';
+      }
 
       btnProbarSonido.addEventListener('click', function() {
+        // Si ya está activado, no hacer nada
+        if (localStorage.getItem('sonidoHabilitadoPedidos') === 'true') return;
+
         alertaAudioTest.currentTime = 0;
         alertaAudioTest.play().then(() => {
           // Guardar preferencia en localStorage
           localStorage.setItem('sonidoHabilitadoPedidos', 'true');
-          btnProbarSonido.style.background = '#28a745';
-          btnProbarSonido.style.color = '#fff';
+          btnProbarSonido.innerHTML = '<i class="fas fa-check-circle me-2"></i> <span>Sonido Activado</span>';
+          btnProbarSonido.classList.add('sonido-activado');
+          
           // Ocultar el texto de ayuda
-          if (textoAyuda) textoAyuda.style.display = 'none';
+          if (textoAyuda) {
+              textoAyuda.style.display = 'none';
+          }
         }).catch(() => {
           // Si hay error, probablemente el navegador bloqueó el sonido
           alert('No se pudo reproducir el sonido. Verifique permisos del navegador.');

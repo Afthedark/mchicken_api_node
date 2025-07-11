@@ -10,6 +10,7 @@ let paginaActual = 1;
 const pedidosPorPagina = 20;
 let totalPaginas = 1;
 let filtroHoyActivo = true;
+let esCargaInicial = true;
 
 // Agregar el CSS personalizado de pedidos2.css
 const head = document.head || document.getElementsByTagName('head')[0];
@@ -257,9 +258,9 @@ async function cargarPedidos() {
         // Detectar nuevos pedidos
         const idsActuales = todosLosPedidos.map((p) => getPedidoIdUnico(p));
         const nuevos = idsActuales.filter(id => !ultimosIdsPedidos.includes(id));
-        // Solo sonar si el usuario habilitó el sonido
+        // Solo sonar si el usuario habilitó el sonido y no es la carga inicial
         const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
-        if (ultimosIdsPedidos.length > 0 && nuevos.length > 0 && sonidoHabilitado) {
+        if (!esCargaInicial && nuevos.length > 0 && sonidoHabilitado) {
             try {
                 alertaAudio.currentTime = 0;
                 alertaAudio.play();
@@ -268,6 +269,10 @@ async function cargarPedidos() {
             }
         }
         ultimosIdsPedidos = idsActuales;
+        // Después de la primera carga, ya no es la carga inicial
+        if (esCargaInicial) {
+            esCargaInicial = false;
+        }
         // Si la página actual es mayor al total de páginas, volver a la última
         totalPaginas = Math.ceil(todosLosPedidos.length / pedidosPorPagina) || 1;
         if (paginaActual > totalPaginas) {
