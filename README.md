@@ -1,4 +1,4 @@
-# 🍗 MChicken API - Sistema de Gestión
+# 🍗 MChicken API - Sistema de Gestión Pedidos
 
 ## 📋 Requisitos Previos
 - 📦 Node.js (v16 o superior)
