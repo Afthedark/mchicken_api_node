@@ -76,14 +76,15 @@ function getPedidoIdUnico(pedido) {
 }
 
 function crearTarjetaPedido(pedido, idx) {
-    // Unificar productos y cantidades en una tabla
+    // Unificar productos y cantidades en formato jerárquico
     let productos = (pedido.producto || '').split(',');
     let cantidades = (pedido.cantidad || '').split(',');
     let observacionesPorProducto = (pedido.observaciones_por_pedido || '').split(' | ');
     if (!Array.isArray(productos)) productos = [];
     if (!Array.isArray(cantidades)) cantidades = [];
     if (!Array.isArray(observacionesPorProducto)) observacionesPorProducto = [];
-    let tablaProductos = '<table class="table table-sm tabla-productos mb-2"><thead><tr><th>PRODUCTO</th><th>CANTIDAD</th><th><span class="observacion-header">OBSERVACIÓN<br>PRODUCTO</span></th></tr></thead><tbody>';
+    
+    let productosHtml = '<div class="productos-container">';
     for (let i = 0; i < productos.length; i++) {
         const prod = productos[i] ? productos[i].trim().toUpperCase() : '';
         let cant = cantidades[i] ? cantidades[i].trim() : '';
@@ -92,16 +93,19 @@ function crearTarjetaPedido(pedido, idx) {
         }
         // Observación por producto (si existe)
         let obsProd = observacionesPorProducto[i] ? observacionesPorProducto[i].trim().toLowerCase() : '';
-        // Capitalizar la primera letra y poner en negrita
-        let obsProdFormatted = '';
-        if (obsProd) {
-            obsProdFormatted = `<strong>${obsProd.charAt(0).toUpperCase() + obsProd.slice(1)}</strong>`;
-        }
-        if (prod || cant || obsProd) {
-            tablaProductos += `<tr><td class='producto-nombre'>${prod}</td><td><span class='cantidad-badge'>${cant}</span></td><td class="observacion-celda">${obsProdFormatted}</td></tr>`;
+        // Capitalizar la primera letra
+        if (prod || cant) {
+            productosHtml += `
+                <div class="producto-item">
+                    <div class="producto-principal">
+                        <div class="producto-cantidad">${cant}</div>
+                        <div class="producto-nombre">${prod}</div>
+                    </div>
+                    ${obsProd ? `<div class="producto-observacion">${obsProd.charAt(0).toUpperCase() + obsProd.slice(1)}</div>` : ''}
+                </div>`;
         }
     }
-    tablaProductos += '</tbody></table>';
+    productosHtml += '</div>';
     // Mostrar tipo de pedido como texto legible (solo el primer valor)
     let tipoPedido = '-';
     let tipoPedidoClass = '';
@@ -124,7 +128,7 @@ function crearTarjetaPedido(pedido, idx) {
     // Ya no mostramos observaciones por producto fuera de la tabla
     let obsPorPedido = '';
     return `
-    <div class="col-md-6 col-lg-4" id="pedido-${pedidoIdUnico}">
+    <div class="col-12 col-sm-4 col-md-3" id="pedido-${pedidoIdUnico}">
         <div class="card pedido-card shadow-sm">
             <div class="card-header pedido-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-hashtag me-1"></i> ${contador}</span>
@@ -133,8 +137,8 @@ function crearTarjetaPedido(pedido, idx) {
             <div class="card-body">
                 <h5 class="card-title mb-3"><i class="fas fa-user me-1"></i> ${(pedido.cliente || 'SIN NOMBRE').toUpperCase()}</h5>
                 <div class="mb-2">
-                    <span class="badge bg-warning text-dark"><i class="fas fa-hamburger me-1"></i> PRODUCTOS Y CANTIDADES</span>
-                    ${tablaProductos}
+                    <span class="badge bg-warning text-dark mb-3"><i class="fas fa-hamburger me-1"></i> PRODUCTOS Y CANTIDADES</span>
+                    ${productosHtml}
                 </div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-box-open me-1"></i> TIPO PEDIDO</span><span class="ps-2 ${tipoPedidoClass}">${tipoPedido}</span></div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-comment-alt me-1"></i> OBSERVACION GENERAL</span><br><span class="ps-2 obs-text">${obs}</span></div>

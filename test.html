@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KDS – Interfaz de Pedidos (HTML+CSS)</title>
+<style>
+  :root{
+    --bg: #efefef;
+    --card: #e36c0a;            /* naranja base de tarjeta */
+    --card-contrast: #ffffff;
+    --ink: #111;
+    --muted: #777;
+    --accent: #111;             /* barras negras de items */
+    --ok: #2bb24c;              /* verde */
+    --warn: #f2d20d;            /* amarillo */
+    --mutedbar: #bdbdbd;        /* gris */
+    --shadow: 0 6px 18px rgba(0,0,0,.15);
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+  body{
+    margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    background: var(--bg); color: var(--ink);
+  }
+
+  .board{
+    max-width: 1400px; margin: 24px auto; padding: 12px;
+    display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
+  }
+
+  .order{
+    background: var(--card);
+    color: var(--card-contrast);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    min-height: 180px;
+  }
+
+  /* Header */
+  .order__header{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding: 12px 14px 0 14px;
+    gap: 10px;
+  }
+  .order__title{
+    line-height:1.05;
+  }
+  .order__name{
+    font-weight: 900; letter-spacing:.4px; font-size: 20px;
+    text-transform: uppercase;
+  }
+  .order__num{
+    font-weight: 800; font-size: 20px; margin-left: 6px;
+  }
+
+  /* Meta row */
+  .order__meta{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 14px 8px 14px; gap: 10px;
+    opacity:.95; font-size: 12px;
+  }
+  .badge{
+    background: rgba(0,0,0,.25);
+    padding: 4px 8px; border-radius: 999px; font-weight: 700;
+  }
+  .muted{ opacity:.85; }
+
+  /* Items list (strips) */
+  .items{ display:grid; gap: 8px; padding: 8px 12px 12px 12px; }
+  .item{
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing:.3px;
+    display:flex; align-items:center; justify-content:space-between;
+    min-height: 34px;
+  }
+  .item--ok    { background: var(--ok);   color:#fff; }
+  .item--warn  { background: var(--warn); color:#111; }
+  .item--muted { background: var(--mutedbar); color:#111; }
+
+  /* Footer */
+  .order__footer{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 8px 12px 12px 12px;
+    font-weight: 800; font-size: 12px; opacity:.95;
+  }
+
+  /* Small timer in corner */
+  .timer{
+    font-variant-numeric: tabular-nums;
+    font-weight: 900;
+  }
+
+  /* Optional state color themes per column/station (if needed) */
+  .order--prep   { /* default orange already set */ }
+  .order--ready  { background:#199a5b; }      /* listo */
+  .order--hold   { background:#9a1f1f; }      /* retenido */
+
+  /* Compact on very small screens */
+  @media (max-width:380px){
+    .order__name{ font-size:18px; }
+    .order__num{ font-size:18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <!-- Pedido 836 -->
+  <article class="order order--prep">
+    <header class="order__header">
+      <div class="order__title">
+        <div class="order__name">S-N</div>
+      </div>
+      <div class="order__num">836</div>
+    </header>
+    <div class="order__meta">
+      <span class="badge">Preparación</span>
+      <span class="muted">20/06/2025 18:33:31</span>
+    </div>
+    <div class="items">
+      <div class="item"><span>1 1/2 P. HORNO S/R</span></div>
+      <div class="item"><span>1 PEPSI 1L</span></div>
+    </div>
+    <footer class="order__footer">
+      <span>K2</span>
+      <span class="timer">00:05</span>
+    </footer>
+  </article>
+
+  <!-- Pedido 835 -->
+  <article class="order order--prep">
+    <header class="order__header">
+      <div class="order__title">
+        <div class="order__name">Miguel Martínez</div>
+      </div>
+      <div class="order__num">835</div>
+    </header>
+    <div class="order__meta">
+      <span class="badge">Preparación</span>
+      <span class="muted">20/06/2025 18:31:11</span>
+    </div>
+    <div class="items">
+      <div class="item item--ok"><span>1 Alitas 10 Papa B</span></div>
+      <div class="item item--ok"><span>1 Papa-PE</span></div>
+    </div>
+    <footer class="order__footer">
+      <span>K2</span>
+      <span class="timer">00:05</span>
+    </footer>
+  </article>
+
+  <!-- Pedido 834 -->
+  <article class="order order--prep">
+    <header class="order__header">
+      <div class="order__title">
+        <div class="order__name">Karina</div>
+      </div>
+      <div class="order__num">834</div>
+    </header>
+    <div class="order__meta">
+      <span class="badge">Preparación</span>
+      <span class="muted">20/06/2025 18:26:01</span>
+    </div>
+    <div class="items">
+      <div class="item item--warn"><span>1 2 P BRO MIX</span></div>
+      <div class="item"><span>Entre Ala</span></div>
+    </div>
+    <footer class="order__footer">
+      <span>K2</span>
+      <span class="timer">00:05</span>
+    </footer>
+  </article>
+
+  <!-- Pedido 833 -->
+  <article class="order order--prep">
+    <header class="order__header">
+      <div class="order__title">
+        <div class="order__name">S-N</div>
+      </div>
+      <div class="order__num">833</div>
+    </header>
+    <div class="order__meta">
+      <span class="badge">Preparación</span>
+      <span class="muted">20/06/2025 18:24:03</span>
+    </div>
+    <div class="items">
+      <div class="item"><span>1 SANGU</span></div>
+      <div class="item item--muted"><span>1 SANGU-PP</span></div>
+      <div class="item"><span>AMBOS MYM</span></div>
+      <div class="item"><span>1 COCA 190CC</span></div>
+    </div>
+    <footer class="order__footer">
+      <span>K2</span>
+      <span class="timer">00:05</span>
+    </footer>
+  </article>
+
+  <!-- Pedido 837 -->
+  <article class="order order--prep">
+    <header class="order__header">
+      <div class="order__title">
+        <div class="order__name">Pamela</div>
+      </div>
+      <div class="order__num">837</div>
+    </header>
+    <div class="order__meta">
+      <span class="badge">Preparación</span>
+      <span class="muted">20/06/2025 18:34:47</span>
+    </div>
+    <div class="items">
+      <div class="item item--warn"><span>1 Pecho o Enterpierna</span></div>
+      <div class="item"><span>Entre</span></div>
+      <div class="item item--warn"><span>1 Pierna o Ala</span></div>
+      <div class="item"><span>Pierna</span></div>
+    </div>
+    <footer class="order__footer">
+      <span>K2</span>
+      <span class="timer">00:05</span>
+    </footer>
+  </article>
+</div>
+
+</body>
+</html>
