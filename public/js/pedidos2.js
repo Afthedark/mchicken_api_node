@@ -1,7 +1,7 @@
 // pedidos2.js
 // Este script carga los pedidos desde la API y los muestra como tarjetas usando Bootstrap
 
-const API_URL = '/pedidos'; // Ajusta si tu endpoint es diferente
+let API_URL = '/pedidos'; // Se ajusta dinámicamente según el filtro
 const tarjetasPedidos = document.getElementById('tarjetasPedidos');
 const refreshBtn = document.getElementById('refreshBtn');
 
@@ -205,25 +205,58 @@ function renderPaginador() {
 }
 
 function renderPedidos() {
-    if (!Array.isArray(todosLosPedidos) || todosLosPedidos.length === 0) {
-        tarjetasPedidos.innerHTML = '<div class="alert alert-info w-100">No hay pedidos para mostrar.</div>';
-        renderPaginador();
-        return;
-    }
-    totalPaginas = Math.ceil(todosLosPedidos.length / pedidosPorPagina) || 1;
-    const inicio = (paginaActual - 1) * pedidosPorPagina;
-    const fin = inicio + pedidosPorPagina;
-    const pedidosPagina = todosLosPedidos.slice(inicio, fin);
-    tarjetasPedidos.innerHTML = pedidosPagina.map((pedido, idx) => crearTarjetaPedido(pedido, idx)).join('');
-    // Limpia clases de animación innecesarias
-    setTimeout(() => {
-      document.querySelectorAll('.pedido-card').forEach(card => {
-        card.classList.remove('fade-out', 'pulse', 'hover-simple', 'animate__animated', 'animate__fadeInUp');
-        card.style.opacity = '';
-        card.style.transform = '';
-      });
-    }, 10);
+  if (!Array.isArray(todosLosPedidos) || todosLosPedidos.length === 0) {
+    tarjetasPedidos.innerHTML = '<div class="alert alert-info w-100">No hay pedidos para mostrar.</div>';
     renderPaginador();
+    return;
+  }
+  totalPaginas = Math.ceil(todosLosPedidos.length / pedidosPorPagina) || 1;
+  const inicio = (paginaActual - 1) * pedidosPorPagina;
+  const fin = inicio + pedidosPorPagina;
+  const pedidosPagina = todosLosPedidos.slice(inicio, fin);
+
+  // --- Renderizado eficiente: solo actualiza el DOM si hay cambios ---
+  // Obtener los IDs actuales en el DOM
+  const domIds = Array.from(document.querySelectorAll('[id^="pedido-"]')).map(el => el.id.replace('pedido-', ''));
+  const nuevosIds = pedidosPagina.map(p => getPedidoIdUnico(p));
+
+  // Eliminar tarjetas que ya no están
+  domIds.forEach(id => {
+    if (!nuevosIds.includes(id)) {
+      const card = document.getElementById(`pedido-${id}`);
+      if (card) card.remove();
+    }
+  });
+
+  // Agregar o actualizar tarjetas
+  pedidosPagina.forEach((pedido, idx) => {
+    const id = getPedidoIdUnico(pedido);
+    let card = document.getElementById(`pedido-${id}`);
+    const cardHtml = crearTarjetaPedido(pedido, idx);
+    if (!card) {
+      // Nueva tarjeta, agregarla
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = cardHtml;
+      tarjetasPedidos.appendChild(tempDiv.firstElementChild);
+    } else {
+      // Si el contenido cambió, actualizarlo
+      if (card.outerHTML !== cardHtml) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cardHtml;
+        tarjetasPedidos.replaceChild(tempDiv.firstElementChild, card);
+      }
+    }
+  });
+
+  // Limpia clases de animación innecesarias
+  setTimeout(() => {
+    document.querySelectorAll('.pedido-card').forEach(card => {
+    card.classList.remove('fade-out', 'pulse', 'hover-simple', 'animate__animated', 'animate__fadeInUp');
+    card.style.opacity = '';
+    card.style.transform = '';
+    });
+  }, 10);
+  renderPaginador();
 }
 
 function actualizarUltimaActualizacion() {
@@ -242,18 +275,12 @@ async function cargarPedidos() {
     setTimeout(() => { tarjetasPedidos.classList.remove('fade-soft'); }, 400);
     tarjetasPedidos.innerHTML = '<div class="text-center w-100 py-5"><div class="spinner-border" role="status"></div></div>';
     try {
+        // Selecciona el endpoint según el filtro
+        API_URL = filtroHoyActivo ? '/pedidos/hoy' : '/pedidos';
         const res = await axios.get(`${API_URL}`);
         let completados = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
         let pedidos = (res.data.pedidos || res.data);
-        if (filtroHoyActivo) {
-            const ahora = new Date();
-            const inicioDia = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 1, 0, 0, 0); // 1:00 AM hoy
-            pedidos = pedidos.filter(p => {
-                if (!p.fecha) return false;
-                const fechaPedido = new Date(p.fecha);
-                return fechaPedido >= inicioDia && fechaPedido <= ahora;
-            });
-        }
+        // Ya no es necesario filtrar por fecha aquí, el backend lo hace
         // Generar ids únicos para todos los pedidos
         todosLosPedidos = pedidos.filter((p) => {
             const idUnico = getPedidoIdUnico(p);
@@ -277,11 +304,26 @@ async function cargarPedidos() {
         if (esCargaInicial) {
             esCargaInicial = false;
         }
-        // Si la página actual es mayor al total de páginas, volver a la última
+        // Actualizar total de páginas
         totalPaginas = Math.ceil(todosLosPedidos.length / pedidosPorPagina) || 1;
+        
+        // Manejar navegación automática de páginas
         if (paginaActual > totalPaginas) {
+            // Si la página actual es mayor al total, ir a la última página
             paginaActual = totalPaginas;
+        } else {
+            // Verificar si la página actual tiene pedidos después del filtrado
+            const inicio = (paginaActual - 1) * pedidosPorPagina;
+            const fin = inicio + pedidosPorPagina;
+            const pedidosPaginaActual = todosLosPedidos.slice(inicio, fin);
+            
+            // Si la página actual quedó vacía pero hay más páginas disponibles
+            if (pedidosPaginaActual.length === 0 && totalPaginas > 0) {
+                // Ir a la primera página que tenga contenido
+                paginaActual = 1;
+            }
         }
+        
         renderPedidos();
         actualizarUltimaActualizacion();
         // Restaurar posición de scroll después de renderizar
@@ -293,25 +335,153 @@ async function cargarPedidos() {
     }
 }
 
+async function cargarPedidosIncremental() {
+    try {
+        // Selecciona el endpoint según el filtro
+        API_URL = filtroHoyActivo ? '/pedidos/hoy' : '/pedidos';
+        const res = await axios.get(`${API_URL}`);
+        let completados = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
+        let pedidos = (res.data.pedidos || res.data);
+
+        // Generar ids únicos para todos los pedidos
+        const nuevosPedidos = pedidos.filter((p) => {
+            const idUnico = getPedidoIdUnico(p);
+            return !completados.includes(idUnico);
+        });
+
+        // Detectar cambios
+        const nuevosIds = nuevosPedidos.map((p) => getPedidoIdUnico(p));
+        const idsActuales = todosLosPedidos.map((p) => getPedidoIdUnico(p));
+
+        // Detectar nuevos pedidos
+        const pedidosNuevos = nuevosPedidos.filter(p => !idsActuales.includes(getPedidoIdUnico(p)));
+
+        // --- SONIDO: Solo si el usuario lo activó y hay nuevos pedidos ---
+        const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
+        if (pedidosNuevos.length > 0 && sonidoHabilitado) {
+            try {
+                alertaAudio.currentTime = 0;
+                const playPromise = alertaAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {/* Autoplay bloqueado, ignorar */});
+                }
+            } catch (e) {
+                // Si el navegador bloquea el sonido, ignorar
+            }
+        }
+
+        // Detectar pedidos eliminados
+        const pedidosEliminados = todosLosPedidos.filter(p => !nuevosIds.includes(getPedidoIdUnico(p)));
+
+        // Actualizar el estado local
+        todosLosPedidos = nuevosPedidos;
+
+        // Actualizar el DOM de manera incremental
+        pedidosEliminados.forEach(p => {
+            const id = getPedidoIdUnico(p);
+            const card = document.getElementById(`pedido-${id}`);
+            if (card) card.remove();
+        });
+
+        pedidosNuevos.forEach((pedido, idx) => {
+            const id = getPedidoIdUnico(pedido);
+            const cardHtml = crearTarjetaPedido(pedido, idx);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = cardHtml;
+            const newCard = tempDiv.firstElementChild;
+            newCard.classList.add('animate__animated', 'animate__fadeInUp');
+            tarjetasPedidos.appendChild(newCard);
+        });
+
+        // Actualizar páginas y manejar navegación automática
+        totalPaginas = Math.ceil(todosLosPedidos.length / pedidosPorPagina) || 1;
+        
+        // Verificar si la página actual quedó sin pedidos
+        const pedidosEnPaginaActual = document.querySelectorAll('[id^="pedido-"]').length;
+        let necesitaRenderizado = false;
+        
+        if (pedidosEnPaginaActual === 0 && totalPaginas > 0) {
+            // Si la página actual quedó vacía, manejar navegación
+            if (paginaActual <= totalPaginas) {
+                // La página actual aún es válida, solo renderizar
+                necesitaRenderizado = true;
+            } else if (paginaActual > 1) {
+                // Ir a la página anterior
+                paginaActual--;
+                necesitaRenderizado = true;
+            } else {
+                // Ir a la primera página
+                paginaActual = 1;
+                necesitaRenderizado = true;
+            }
+        } else if (paginaActual > totalPaginas) {
+            // Si la página actual es mayor al total, ajustar
+            paginaActual = totalPaginas;
+            necesitaRenderizado = true;
+        }
+        
+        if (necesitaRenderizado) {
+            renderPedidos();
+        } else {
+            renderPaginador();
+        }
+        
+        actualizarUltimaActualizacion();
+    } catch (err) {
+        console.error('Error al cargar pedidos:', err);
+    }
+}
+
 window.marcarPedidoCompletado = function(facturaId) {
     const card = document.getElementById(`pedido-${facturaId}`);
     if (card) {
+        // Primero actualizamos el estado local y localStorage
+        let completados = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
+        if (!completados.includes(facturaId)) {
+            completados.push(facturaId);
+            localStorage.setItem('pedidosCompletados', JSON.stringify(completados));
+            
+            // También actualizamos el array local de pedidos
+            todosLosPedidos = todosLosPedidos.filter(p => getPedidoIdUnico(p) !== facturaId);
+        }
+
+        // Animar y quitar la tarjeta
         const innerCard = card.querySelector('.pedido-card');
         if (innerCard) {
-            // Elimina animaciones previas antes de fade-out
             innerCard.classList.remove('pulse');
             void innerCard.offsetWidth;
             innerCard.classList.add('fade-out');
         }
+
         setTimeout(() => {
             card.remove();
-            // Guardar el ID como completado en localStorage
-            let completados = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
-            if (!completados.includes(facturaId)) {
-                completados.push(facturaId);
-                localStorage.setItem('pedidosCompletados', JSON.stringify(completados));
+            
+            // Recalcular total de páginas
+            totalPaginas = Math.ceil(todosLosPedidos.length / pedidosPorPagina) || 1;
+            
+            // Verificar cuántos pedidos quedan en la página actual
+            const pedidosEnPaginaActual = document.querySelectorAll('[id^="pedido-"]').length;
+            
+            // Si la página actual quedó vacía
+            if (pedidosEnPaginaActual === 0) {
+                // Si hay más páginas después de la actual, avanzar a la siguiente
+                if (paginaActual < totalPaginas) {
+                    // No cambiar la página actual, solo renderizar (la página siguiente se convierte en la actual)
+                    renderPedidos();
+                }
+                // Si no hay más páginas después, ir a la página anterior
+                else if (paginaActual > 1) {
+                    paginaActual--;
+                    renderPedidos();
+                }
+                // Si es la única página y quedó vacía, solo actualizar el paginador
+                else {
+                    renderPedidos();
+                }
+            } else {
+                // Si aún hay pedidos en la página, solo actualizar el paginador
+                renderPaginador();
             }
-            cargarPedidos();
         }, 600);
     }
 };
@@ -403,8 +573,8 @@ window.addEventListener('DOMContentLoaded', () => {
   cargarPedidos();
   addCardHoverAnimation();
   setInterval(() => {
-    cargarPedidos();
-  }, 8000); // Actualiza cada 8 segundos
+    cargarPedidosIncremental();
+  }, 10000); // Actualiza cada 10 segundos
 
   // Asegura que el modal de ajustes se abra correctamente si falla el data-bs-toggle
   const ajustesBtn = document.getElementById('ajustesBtn');
