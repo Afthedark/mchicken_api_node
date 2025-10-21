@@ -137,11 +137,11 @@ function crearTarjetaPedido(pedido, idx) {
             <div class="card-body">
                 <h5 class="card-title mb-3"><i class="fas fa-user me-1"></i> ${(pedido.cliente || 'SIN NOMBRE').toUpperCase()}</h5>
                 <div class="mb-2">
-                    <span class="badge bg-warning text-dark mb-3"><i class="fas fa-hamburger me-1"></i> PRODUCTOS Y CANTIDADES</span>
+                    <span class="badge bg-warning text-dark mb-3 text-center d-block" style="white-space:pre-line;font-size:1.1em;line-height:1.1em;"><i class="fas fa-hamburger me-1"></i>PRODUCTOS\nY CANTIDADES</span>
                     ${productosHtml}
                 </div>
+                <div class="mb-2"><span class="badge bg-light text-dark border text-center d-block" style="white-space:pre-line;font-size:1.1em;line-height:1.1em;"><i class="fas fa-comment-alt me-1"></i>OBSERVACION\nGENERAL</span><br><span class="ps-2 obs-text">${obs}</span></div>
                 <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-box-open me-1"></i> TIPO PEDIDO</span><span class="ps-2 ${tipoPedidoClass}">${tipoPedido}</span></div>
-                <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-comment-alt me-1"></i> OBSERVACION GENERAL</span><br><span class="ps-2 obs-text">${obs}</span></div>
                 ${obsPorPedido}
                 <button class="btn btn-success mt-3 w-100 shadow-sm fw-semibold" onclick="marcarPedidoCompletado('${pedidoIdUnico}')">
                     <i class="fas fa-check-circle me-1"></i> MARCAR PEDIDO COMO COMPLETADO
