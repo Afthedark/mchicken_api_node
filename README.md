@@ -90,11 +90,17 @@
    - Verificar que exista conexión a la base de datos en los logs
 
 ## ✨ Características
-- 🔄 Endpoint GET `/pedidos` para obtener todos los pedidos
-- ⚡ Actualización automática cada 30 segundos
-- 📄 Paginación de resultados
-- 🌐 Acceso desde múltiples dispositivos en la red local
-
+- 🔄 Endpoint GET `/pedidos` para obtener todos los pedidos.
+- ⚡ Actualización automática cada 10 segundos (incremental).
+- 🎨 **Identificación Visual de Pedidos**:
+  - 🟢 **Verde**: Pedidos estándar (Mesa/Para Llevar).
+  - 🟡 **Amarillo**: Pedidos de **Call Center** (detectados automáticamente por palabras clave "callcenter").
+  - 🔵 **Celeste**: Pedidos de **Autopollo** (detectados automáticamente por palabras clave "autopollo").
+- 🚨 **Alerta de Atraso**: Los pedidos con más de **10 minutos** de antigüedad muestran un **borde rojo parpadeante** (efecto "pulso") muy notorio.
+- � **Indicador de Estado**: Punto de conexión en tiempo real (Conectado/Desconectado).
+- �📄 Paginación de resultados optimizada.
+- 🔊 Alertas sonoras configurables para nuevos pedidos.
+- 🌐 Acceso desde múltiples dispositivos en la red local.
 ## 🔧 Solución de Problemas
 - 🔍 Verificar que MySQL esté corriendo
 - 📋 Revisar los logs del servidor en la carpeta `C:\mchicken_api_node\logs\`
