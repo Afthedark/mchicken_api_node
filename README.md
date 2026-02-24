@@ -1,8 +1,8 @@
 # 🍗 MChicken API - Sistema de Gestión
 
 ## 📋 Requisitos Previos
-- 📦 Node.js (v16 o superior)
-- 🗄️ MySQL (v8.0 o superior)
+- 📦 Node.js (v16+ o superior)
+- 🗄️ MySQL (v5.0 necesario)
 - 🔄 Git (opcional)
 
 ## 🚀 Instalación
