@@ -38,7 +38,12 @@
               <div class="modal-body">
                 <div id="ajustesPasswordSection">
                   <label class="form-label">Ingrese contraseña para acceder a los ajustes:</label>
-                  <input type="password" class="form-control mb-2" id="ajustesPasswordInput" placeholder="Contraseña">
+                  <div class="input-group mb-2">
+                    <input type="password" class="form-control" id="ajustesPasswordInput" placeholder="Contraseña">
+                    <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" title="Mostrar/Ocultar contraseña">
+                      <i class="fas fa-eye" id="togglePasswordIcon" style="color:#6c757d;"></i>
+                    </button>
+                  </div>
                   <div id="ajustesPasswordError" class="text-danger mb-2" style="display:none;">Contraseña incorrecta</div>
                   <button type="button" class="btn btn-primary w-100" id="ajustesPasswordBtn">Acceder</button>
                 </div>
@@ -117,6 +122,24 @@
       if (passwordInput) {
         passwordInput.addEventListener('keyup', function(e) {
           if (e.key === 'Enter') passwordBtn.click();
+        });
+      }
+
+      // Alternar visibilidad de la contraseña
+      const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+      const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+      if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
+        togglePasswordBtn.addEventListener('click', function() {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          
+          if (type === 'text') {
+            togglePasswordIcon.classList.remove('fa-eye');
+            togglePasswordIcon.classList.add('fa-eye-slash');
+          } else {
+            togglePasswordIcon.classList.remove('fa-eye-slash');
+            togglePasswordIcon.classList.add('fa-eye');
+          }
         });
       }
     })();

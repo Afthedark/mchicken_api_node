@@ -7,7 +7,7 @@ const refreshBtn = document.getElementById('refreshBtn');
 
 let todosLosPedidos = [];
 let paginaActual = 1;
-const pedidosPorPagina = 20;
+const pedidosPorPagina = 24; // Actualizado a múltiplo de 6 para cuadrícula perfecta
 let totalPaginas = 1;
 let filtroHoyActivo = true;
 let esCargaInicial = true;
@@ -85,6 +85,8 @@ function crearTarjetaPedido(pedido, idx) {
     if (!Array.isArray(observacionesPorProducto)) observacionesPorProducto = [];
 
     let productosHtml = '<div class="productos-container">';
+    let hayProductosValidos = false;
+
     for (let i = 0; i < productos.length; i++) {
         const prod = productos[i] ? productos[i].trim().toUpperCase() : '';
         let cant = cantidades[i] ? cantidades[i].trim() : '';
@@ -93,18 +95,33 @@ function crearTarjetaPedido(pedido, idx) {
         }
         // Observación por producto (si existe)
         let obsProd = observacionesPorProducto[i] ? observacionesPorProducto[i].trim().toLowerCase() : '';
-        // Capitalizar la primera letra
+        // Si hay al menos un nombre o cantidad válida, procedemos
         if (prod || cant) {
+            hayProductosValidos = true;
             productosHtml += `
-                <div class="producto-item">
-                    <div class="producto-principal">
-                        <div class="producto-cantidad">${cant}</div>
-                        <div class="producto-nombre">${prod}</div>
+                <div class="producto-item-modern">
+                    <div class="producto-cantidad-modern">${cant}</div>
+                    <div class="producto-detalle">
+                        <div class="producto-nombre-modern">${prod}</div>
+                        ${obsProd ? `<div class="producto-observacion">${obsProd.charAt(0).toUpperCase() + obsProd.slice(1)}</div>` : ''}
                     </div>
-                    ${obsProd ? `<div class="producto-observacion">${obsProd.charAt(0).toUpperCase() + obsProd.slice(1)}</div>` : ''}
                 </div>`;
         }
     }
+
+    // Fallback visual contundente si la orden vino vacía o corrupta desde el POS
+    if (!hayProductosValidos) {
+        productosHtml += `
+            <div class="producto-item-modern justify-content-center text-center p-3" style="background: transparent; border: 2px dashed #ffcdd2; color: #d32f2f;">
+                <div>
+                    <div class="fw-bold" style="font-size: 0.95rem;">
+                        <i class="fas fa-exclamation-triangle me-1"></i> SIN PRODUCTOS REGISTRADOS
+                    </div>
+                    <div style="font-size: 0.75rem; color: #e57373;">(Orden enviada vacía desde caja)</div>
+                </div>
+            </div>`;
+    }
+
     productosHtml += '</div>';
     // Detectar tipo de pedido y asignar color de encabezado
     let headerClass = ''; // Default (naranja/primary)
@@ -156,35 +173,60 @@ function crearTarjetaPedido(pedido, idx) {
 
     // Mostrar observaciones en mayúsculas o 'SIN OBSERVACIONES' si está vacío
     let obs = obsGeneral ? obsGeneral.toUpperCase() : 'SIN OBSERVACIONES';
+
+    // Formatear Fecha y Hora exacta
+    let fechaFormateada = 'FECHA DESCONOCIDA';
+    if (pedido.fecha) {
+        const d = new Date(pedido.fecha);
+        // Formato ej: 14/10/2026 - 15:30
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const anio = d.getFullYear();
+        const horas = String(d.getHours()).padStart(2, '0');
+        const minutos = String(d.getMinutes()).padStart(2, '0');
+        fechaFormateada = `${dia}/${mes}/${anio} - ${horas}:${minutos}`;
+    }
+
     let pedidoIdUnico = getPedidoIdUnico(pedido);
     // Si el filtro de hoy está activo, usar idx+1 como contador visible, si no mostrar el ID real
     let contador = filtroHoyActivo ? (idx + 1) : (pedido["Factura ID"] || '').toString().toUpperCase();
     // Elimina clases de animación previas si existen (para evitar conflictos)
-    // Ya no mostramos observaciones por producto fuera de la tabla
-    let obsPorPedido = '';
     return `
-    <div class="col-12 col-sm-4 col-md-3" id="pedido-${pedidoIdUnico}">
-        <div class="card pedido-card shadow-sm ${claseAtraso}">
-            <div class="card-header pedido-header ${headerClass} d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-hashtag me-1"></i> ${contador}</span>
-                ${estadoBadge(pedido.estado)}
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="pedido-${pedidoIdUnico}">
+        <div class="pedido-card ${claseAtraso}">
+            <div class="pedido-header ${headerClass}">
+                #${contador}
             </div>
-            <div class="card-body">
-                <h5 class="card-title mb-3"><i class="fas fa-user me-1"></i> ${(pedido.cliente || 'SIN NOMBRE').toUpperCase()}</h5>
-                <div class="mb-2">
-                    <span class="badge bg-warning text-dark mb-3 text-center d-block" style="white-space:pre-line;font-size:1.1em;line-height:1.1em;"><i class="fas fa-hamburger me-1"></i>PRODUCTOS\nY CANTIDADES</span>
-                    ${productosHtml}
+            
+            <div class="cliente-header-section">
+                <h5 class="cliente-nombre">
+                    <i class="fas fa-user-circle"></i> ${(pedido.cliente || 'SIN NOMBRE').toUpperCase()}
+                </h5>
+            </div>
+
+            <div class="pedido-body-content">
+                ${productosHtml}
+
+                <div class="tipo-pedido-badge">
+                    <i class="fas fa-shopping-bag"></i> ${tipoPedidoTexto}
                 </div>
-                <div class="mb-2"><span class="badge bg-light text-dark border text-center d-block" style="white-space:pre-line;font-size:1.1em;line-height:1.1em;"><i class="fas fa-comment-alt me-1"></i>OBSERVACION\nGENERAL</span><br><span class="ps-2 obs-text">${obs}</span></div>
-                <div class="mb-2"><span class="badge bg-light text-dark border"><i class="fas fa-box-open me-1"></i> TIPO PEDIDO</span><span class="ps-2 ${tipoPedidoClass}">${tipoPedidoTexto}</span></div>
-                ${obsPorPedido}
-                <button class="btn btn-success mt-3 w-100 shadow-sm fw-semibold" onclick="marcarPedidoCompletado('${pedidoIdUnico}')">
-                    <i class="fas fa-check-circle me-1"></i> MARCAR PEDIDO COMO COMPLETADO
+                
+                ${obsGeneral ? `
+                <div class="obs-general-box">
+                    <div class="obs-general-title">
+                        <i class="fas fa-comment-alt"></i> OBSERVACIÓN GENERAL
+                    </div>
+                    <p class="obs-general-text">${obs}</p>
+                </div>
+                ` : ''}
+                
+                <button class="btn-completar-modern" onclick="marcarPedidoCompletado('${pedidoIdUnico}')">
+                    <i class="fas fa-check"></i> COMPLETADO
                 </button>
-            </div>
-            <div class="card-footer pedido-footer d-flex justify-content-between align-items-center">
-                <span><i class="far fa-clock me-1"></i> ${pedido.fecha ? tiempoRelativo(pedido.fecha) : ''}</span>
-                ${pedido.estado && pedido.estado.toLowerCase() !== 'concluido' ? `<span><strong>ESTADO:</strong> ${pedido.estado.toUpperCase()}</span>` : ''}
+
+                <div class="text-center mt-3 text-muted" style="font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px;">
+                    <i class="far fa-clock"></i> ${fechaFormateada}
+                </div>
             </div>
         </div>
     </div>
