@@ -21,7 +21,7 @@ const pedidosController = {
         const whereClause = whereClauses.join(" AND ");
         const sqlQuery = `
         SELECT 
-            c.nombre_razon_social AS cliente,
+            COALESCE(NULLIF(TRIM(p.nom_pedido_cliente), ''), c.nombre_razon_social) AS cliente,
             lf.producto,
             p.fecha,
             lf.cantidad,
@@ -81,7 +81,7 @@ const pedidosController = {
         const whereClause = "p.estado = 'CONCLUIDO' AND DATE(p.fecha) = ?";
         const sqlQuery = `
         SELECT 
-            c.nombre_razon_social AS cliente,
+            COALESCE(NULLIF(TRIM(p.nom_pedido_cliente), ''), c.nombre_razon_social) AS cliente,
             lf.producto,
             p.fecha,
             lf.cantidad,
