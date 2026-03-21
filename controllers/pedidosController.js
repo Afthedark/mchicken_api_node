@@ -1,10 +1,10 @@
 const db = require('../config/db');
 
-
 const pedidosController = {
     obtenerPedidos: (req, res) => {
         const fechaInicio = req.query.fechaInicio;
         const fechaFin = req.query.fechaFin;
+        
         // ...existing code...
         let whereClauses = ["p.estado = 'CONCLUIDO'"];
         let params = [];
@@ -18,6 +18,7 @@ const pedidosController = {
             whereClauses.push("DATE(p.fecha) <= ?");
             params.push(fechaFin);
         }
+        
         const whereClause = whereClauses.join(" AND ");
         const sqlQuery = `
         SELECT 
@@ -31,11 +32,11 @@ const pedidosController = {
             p.observaciones AS 'observacion general',
             lp.observaciones_por_pedido
         FROM 
-            pv_mchicken.pedidos p
+            pedidos p
         JOIN 
-            pv_mchicken.clientes c ON p.cliente_id = c.cliente_id
+            clientes c ON p.cliente_id = c.cliente_id
         LEFT JOIN 
-            pv_mchicken.facturas f ON p.pedido_id = f.pedido_id
+            facturas f ON p.pedido_id = f.pedido_id
         LEFT JOIN (
             SELECT 
                 factura_id,
@@ -43,9 +44,9 @@ const pedidosController = {
                 GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
                 MAX(lpf.llevar) AS llevar
             FROM 
-                pv_mchicken.lin_facturas lpf
+                lin_facturas lpf
             LEFT JOIN 
-                pv_mchicken.items i ON lpf.item_id = i.item_id
+                items i ON lpf.item_id = i.item_id
             GROUP BY 
                 lpf.factura_id
         ) lf ON f.factura_id = lf.factura_id
@@ -54,7 +55,7 @@ const pedidosController = {
                 pedido_id,
                 NULLIF(TRIM(BOTH FROM GROUP_CONCAT(DISTINCT observaciones SEPARATOR ' | ')), '') AS observaciones_por_pedido
             FROM 
-                pv_mchicken.lin_pedidos
+                lin_pedidos
             GROUP BY 
                 pedido_id
         ) lp ON p.pedido_id = lp.pedido_id
@@ -62,6 +63,7 @@ const pedidosController = {
             ${whereClause}
         ORDER BY
             p.fecha ASC;`;
+            
         db.query(sqlQuery, params, (err, results) => {
             if (err) {
                 console.error('Error al obtener pedidos:', err);
@@ -78,6 +80,7 @@ const pedidosController = {
         const mm = String(hoy.getMonth() + 1).padStart(2, '0');
         const dd = String(hoy.getDate()).padStart(2, '0');
         const fechaHoy = `${yyyy}-${mm}-${dd}`;
+        
         const whereClause = "p.estado = 'CONCLUIDO' AND DATE(p.fecha) = ?";
         const sqlQuery = `
         SELECT 
@@ -91,11 +94,11 @@ const pedidosController = {
             p.observaciones AS 'observacion general',
             lp.observaciones_por_pedido
         FROM 
-            pv_mchicken.pedidos p
+            pedidos p
         JOIN 
-            pv_mchicken.clientes c ON p.cliente_id = c.cliente_id
+            clientes c ON p.cliente_id = c.cliente_id
         LEFT JOIN 
-            pv_mchicken.facturas f ON p.pedido_id = f.pedido_id
+            facturas f ON p.pedido_id = f.pedido_id
         LEFT JOIN (
             SELECT 
                 factura_id,
@@ -103,9 +106,9 @@ const pedidosController = {
                 GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
                 MAX(lpf.llevar) AS llevar
             FROM 
-                pv_mchicken.lin_facturas lpf
+                lin_facturas lpf
             LEFT JOIN 
-                pv_mchicken.items i ON lpf.item_id = i.item_id
+                items i ON lpf.item_id = i.item_id
             GROUP BY 
                 lpf.factura_id
         ) lf ON f.factura_id = lf.factura_id
@@ -114,7 +117,7 @@ const pedidosController = {
                 pedido_id,
                 NULLIF(TRIM(BOTH FROM GROUP_CONCAT(DISTINCT observaciones SEPARATOR ' | ')), '') AS observaciones_por_pedido
             FROM 
-                pv_mchicken.lin_pedidos
+                lin_pedidos
             GROUP BY 
                 pedido_id
         ) lp ON p.pedido_id = lp.pedido_id
@@ -122,6 +125,7 @@ const pedidosController = {
             ${whereClause}
         ORDER BY
             p.fecha ASC;`;
+            
         db.query(sqlQuery, [fechaHoy], (err, results) => {
             if (err) {
                 console.error('Error al obtener pedidos del día:', err);
