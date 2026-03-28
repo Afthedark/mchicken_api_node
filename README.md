@@ -90,6 +90,10 @@
    - Verificar que exista conexión a la base de datos en los logs
 
 ## ✨ Características
+- 🏠 **Portal Administrativo Central**: Acceso unificado en la raíz (`/`) para navegar entre las distintas pantallas de cocina y configurar el sistema.
+- 🎯 **Filtro Inteligente de Productos (`pedidos3.html`)**: Pantalla secundaria configurada para mostrar *única y exclusivamente* las órdenes que contengan productos específicos, recortando los elementos irrelevantes de las facturas para no saturar al cocinero.
+- 🛠️ **Gestión Dinámica de Filtros**: Administración en tiempo real de la lista de productos válidos desde el Portal Central de manera sencilla (almacenamiento persistente en JSON).
+- 🧹 **Mantenimiento de Caché**: Botón dedicado para vaciar la memoria de facturas completadas y reiniciar el estado de la aplicación.
 - 🔄 Endpoint GET `/pedidos` para obtener todos los pedidos.
 - ⚡ Actualización automática cada 10 segundos (incremental).
 - 🎨 **Identificación Visual de Pedidos**:
@@ -97,8 +101,8 @@
   - 🟡 **Amarillo**: Pedidos de **Call Center** (detectados automáticamente por palabras clave "callcenter").
   - 🔵 **Celeste**: Pedidos de **Autopollo** (detectados automáticamente por palabras clave "autopollo").
 - 🚨 **Alerta de Atraso**: Los pedidos con más de **10 minutos** de antigüedad muestran un **borde rojo parpadeante** (efecto "pulso") muy notorio.
-- � **Indicador de Estado**: Punto de conexión en tiempo real (Conectado/Desconectado).
-- �📄 Paginación de resultados optimizada.
+- 📡 **Indicador de Estado**: Punto de conexión en tiempo real (Conectado/Desconectado).
+- 📄 Paginación de resultados optimizada.
 - 🔊 Alertas sonoras configurables para nuevos pedidos.
 - 🌐 Acceso desde múltiples dispositivos en la red local.
 ## 🔧 Solución de Problemas

@@ -10,7 +10,9 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Rutas
+const ajustesRouter = require('./routes/ajustes');
 app.use('/pedidos', pedidosRouter);
+app.use('/ajustes', ajustesRouter);
 
 
 
