@@ -42,7 +42,7 @@
 
         <div class="row">
             <!-- Columna Izquierda: Filtros -->
-            <div class="col-md-8 mx-auto">
+            <div class="col-md-7">
                 <h5 class="mb-3 fw-bold"><i class="fas fa-list-ul me-2"></i>Gestión de Filtro (Pedidos 3)</h5>
                 <p class="text-muted small">Agregue, edite o elimine los nombres de los productos que deba filtrar la pantalla secundaria. Escriba <strong>un producto por línea</strong>. Los cambios aplicarán inmediatamente.</p>
                 
@@ -54,15 +54,43 @@
                 <div id="filtroAlertMsg" class="alert-message text-center"></div>
             </div>
 
-            <!-- Columna Derecha: Mantenimiento (Oculta temporalmente según requermiento) -->
-            <div class="col-md-5 ps-md-4 mt-4 mt-md-0 d-none">
-                <h5 class="mb-3 fw-bold"><i class="fas fa-broom me-2"></i>Mantenimiento de Caché</h5>
-                <p class="text-muted small">Al ir concluyendo pedidos, la pantalla va memorizando las órdenes que ya salieron de cocina para no volverlas a mostrar. Esta memoria (caché) se guarda permanentemente en la computadora actual.</p>
-                <p class="text-muted small">Para descongestionar la memoria o ver las órdenes de forma íntegra, use esta acción para vaciar la memoria de la sesión del navegador y reiniciar las vistas a su estado natural.</p>
+            <!-- Columna Derecha: Accesos y Mantenimiento -->
+            <div class="col-md-5 ps-md-4 mt-4 mt-md-0">
+                <h5 class="mb-3 fw-bold"><i class="fas fa-link me-2"></i>Accesos Directos</h5>
+                <p class="text-muted small">Copie o acceda a los enlaces directos de las pantallas con un solo clic.</p>
                 
-                <button class="btn btn-outline-danger w-100" id="btnLimpiarCache">
-                    <i class="fas fa-trash-alt me-2"></i> Limpiar Caché de Ordenes (Solo PC Actual)
-                </button>
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-primary">Pantalla General (Pedidos 2)</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control form-control-sm" id="linkP2" readonly placeholder="Cargando...">
+                      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyP2" title="Copiar enlace">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                      <a href="/pedidos2.html" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
+                        <i class="fas fa-external-link-alt"></i> Abrir
+                      </a>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-primary">Pantalla Filtrada (Pedidos 3)</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control form-control-sm" id="linkP3" readonly placeholder="Cargando...">
+                      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyP3" title="Copiar enlace">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                      <a href="/pedidos3.html" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
+                        <i class="fas fa-external-link-alt"></i> Abrir
+                      </a>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top d-none">
+                    <h5 class="mb-2 fw-bold"><i class="fas fa-broom me-2"></i>Caché</h5>
+                    <button class="btn btn-outline-danger w-100 btn-sm" id="btnLimpiarCache">
+                        <i class="fas fa-trash-alt me-2"></i> Limpiar Caché de Ordenes
+                    </button>
+                </div>
             </div>
         </div>
     </div>

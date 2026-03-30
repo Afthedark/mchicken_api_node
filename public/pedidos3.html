@@ -74,6 +74,25 @@
                     </div>
                     <div id="limpiezaNotificacion" class="text-success mt-2" style="display:none;font-size:0.95em;"></div>
                   </div>
+                  <hr>
+                  <div class="mb-3">
+                    <label class="form-label">Link de esta Pantalla</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="linkActualInput" readonly>
+                      <button class="btn btn-outline-primary" type="button" id="btnCopiarLink" title="Copiar enlace">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">IP del Servidor (Red Local)</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="ipServidorInput" readonly placeholder="Cargando...">
+                      <button class="btn btn-outline-primary" type="button" id="btnCopiarIp" title="Copiar IP">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="modal-footer">
@@ -191,6 +210,55 @@
         });
       });
     })();
+
+    // Lógica para copiar al portapapeles y cargar IP
+    document.addEventListener('DOMContentLoaded', () => {
+        const linkInput = document.getElementById('linkActualInput');
+        const ipInput = document.getElementById('ipServidorInput');
+        const btnCopiarLink = document.getElementById('btnCopiarLink');
+        const btnCopiarIp = document.getElementById('btnCopiarIp');
+
+        if (linkInput) {
+            linkInput.value = window.location.href;
+        }
+
+        if (ipInput) {
+            fetch('/ajustes/ip')
+                .then(res => res.json())
+                .then(data => {
+                    ipInput.value = data.ip;
+                })
+                .catch(err => {
+                    console.error('Error obteniendo IP:', err);
+                    ipInput.value = 'Error al obtener IP';
+                });
+        }
+
+        const copiarTexto = (inputEl, btnEl) => {
+            if (!inputEl.value) return;
+            inputEl.select();
+            inputEl.setSelectionRange(0, 99999); 
+            try {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(inputEl.value);
+                } else {
+                    document.execCommand('copy');
+                }
+                const iconoOri = btnEl.innerHTML;
+                btnEl.innerHTML = '<i class="fas fa-check text-success"></i>';
+                setTimeout(() => { btnEl.innerHTML = iconoOri; }, 2000);
+            } catch (err) {
+                console.error("No se pudo copiar", err);
+            }
+        };
+
+        if (btnCopiarLink && linkInput) {
+            btnCopiarLink.addEventListener('click', () => copiarTexto(linkInput, btnCopiarLink));
+        }
+        if (btnCopiarIp && ipInput) {
+            btnCopiarIp.addEventListener('click', () => copiarTexto(ipInput, btnCopiarIp));
+        }
+    });
     </script>
 </body>
 </html>

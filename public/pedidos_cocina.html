@@ -298,6 +298,14 @@
                                                 placeholder="172.21.25.249" required>
                                             <div class="form-text">Formato: xxx.xxx.xxx.xxx</div>
                                         </div>
+                                        <div class="mb-3">
+                                            <label for="screenA" class="form-label"><i
+                                                    class="fas fa-desktop me-2 text-muted"></i>Tipo de Pantalla</label>
+                                            <select class="form-select" id="screenA">
+                                                <option value="pedidos2.html">Pantalla General (pedidos2)</option>
+                                                <option value="pedidos3.html">Pantalla Filtrada (pedidos3)</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -321,6 +329,14 @@
                                             <input type="text" class="form-control ip-input" id="ipB"
                                                 placeholder="172.21.25.248" required>
                                             <div class="form-text">Formato: xxx.xxx.xxx.xxx</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="screenB" class="form-label"><i
+                                                    class="fas fa-desktop me-2 text-muted"></i>Tipo de Pantalla</label>
+                                            <select class="form-select" id="screenB">
+                                                <option value="pedidos2.html">Pantalla General (pedidos2)</option>
+                                                <option value="pedidos3.html">Pantalla Filtrada (pedidos3)</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -387,19 +403,23 @@
             const titleA = localStorage.getItem('titleA') || 'Punto de Venta A';
             const titleB = localStorage.getItem('titleB') || 'Punto de Venta B';
 
+            // Cargar Pantallas
+            const screenA = localStorage.getItem('screenA') || 'pedidos2.html';
+            const screenB = localStorage.getItem('screenB') || 'pedidos2.html';
+
             // Actualizar títulos en la interfaz
             document.getElementById('titleA').textContent = titleA;
             document.getElementById('titleB').textContent = titleB;
 
             // Actualizar iframes
             if (validateIP(ipA)) {
-                document.getElementById('iframeA').src = `http://${ipA}:3000/pedidos2.html`;
+                document.getElementById('iframeA').src = `http://${ipA}:3000/${screenA}`;
             }
             if (validateIP(ipB)) {
-                document.getElementById('iframeB').src = `http://${ipB}:3000/pedidos2.html`;
+                document.getElementById('iframeB').src = `http://${ipB}:3000/${screenB}`;
             }
 
-            return { ipA, ipB, titleA, titleB };
+            return { ipA, ipB, titleA, titleB, screenA, screenB };
         }
 
         // Guardar configuración en localStorage
@@ -408,11 +428,15 @@
             const ipBInput = document.getElementById('ipB');
             const titleAInput = document.getElementById('titleAInput');
             const titleBInput = document.getElementById('titleBInput');
+            const screenAInput = document.getElementById('screenA');
+            const screenBInput = document.getElementById('screenB');
 
             const ipA = ipAInput.value.trim();
             const ipB = ipBInput.value.trim();
             const titleA = titleAInput.value.trim();
             const titleB = titleBInput.value.trim();
+            const screenA = screenAInput.value;
+            const screenB = screenBInput.value;
 
             let isValid = true;
 
@@ -455,14 +479,16 @@
             localStorage.setItem('ipB', ipB);
             localStorage.setItem('titleA', titleA);
             localStorage.setItem('titleB', titleB);
+            localStorage.setItem('screenA', screenA);
+            localStorage.setItem('screenB', screenB);
 
             // Actualizar interfaz
             document.getElementById('titleA').textContent = titleA;
             document.getElementById('titleB').textContent = titleB;
 
             // Actualizar iframes
-            document.getElementById('iframeA').src = `http://${ipA}:3000/pedidos2.html`;
-            document.getElementById('iframeB').src = `http://${ipB}:3000/pedidos2.html`;
+            document.getElementById('iframeA').src = `http://${ipA}:3000/${screenA}`;
+            document.getElementById('iframeB').src = `http://${ipB}:3000/${screenB}`;
 
             // Feedback y cierre del modal
             const feedbackEl = document.getElementById('save-feedback');
@@ -478,11 +504,13 @@
 
         // Abrir modal de configuración
         function openSettings() {
-            const { ipA, ipB, titleA, titleB } = loadConfig();
+            const { ipA, ipB, titleA, titleB, screenA, screenB } = loadConfig();
             document.getElementById('ipA').value = ipA;
             document.getElementById('ipB').value = ipB;
             document.getElementById('titleAInput').value = titleA;
             document.getElementById('titleBInput').value = titleB;
+            document.getElementById('screenA').value = screenA;
+            document.getElementById('screenB').value = screenB;
 
             // Limpiar estados de validación
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
