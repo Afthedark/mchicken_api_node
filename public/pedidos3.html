@@ -7,79 +7,166 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Alpine JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body>
+<body x-data="gestorPedidosFiltros()">
     <div class="container py-4">
         <div class="header-responsive d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center mb-4 gap-2 gap-sm-0">
             <h1 class="mb-0 main-title text-center text-sm-start w-100 w-sm-auto">
-                <i class="fas fa-utensils me-2"></i>
-                Pedidos a Preparar (Filtrados)
+                <i class="fas fa-utensils me-2"></i> Pedidos a Preparar (Filtrados)
             </h1>
             <span id="ultimaActualizacion" class="ultima-actualizacion-ui text-center text-sm-start w-100 w-sm-auto">
                 <!-- El JS coloca aquí la fecha -->
             </span>
-            <button id="ajustesBtn" class="btn btn-light shadow-sm px-2 py-2 ms-0 ms-sm-2 w-100 w-sm-auto" title="Ajustes">
+            <button class="btn btn-light shadow-sm px-2 py-2 ms-0 ms-sm-2 w-100 w-sm-auto" title="Ajustes" data-bs-toggle="modal" data-bs-target="#ajustesModal">
                 <i class="fas fa-cog"></i>
             </button>
         </div>
-        <div id="tarjetasPedidos" class="row">
-            <!-- Las tarjetas de pedidos se cargarán aquí -->
+
+        <div class="row">
+            <template x-if="todosLosPedidos.length === 0">
+                <div class="alert alert-info w-100">No hay pedidos para mostrar o los filtros están excluyendo todo.</div>
+            </template>
+            
+            <template x-for="(pedido, index) in pedidosPaginados" :key="pedido.idUnico">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2" :id="'pedido-'+pedido.idUnico" x-transition.duration.500ms>
+                    <div class="pedido-card hover-simple" :class="pedido.claseAtraso">
+                        <div class="pedido-header" :class="pedido.headerClass">
+                            #<span x-text="filtroHoyActivo ? (+index + 1 + (paginaActual-1)*pedidosPorPagina) : pedido.facturaId"></span>
+                        </div>
+                        
+                        <div class="cliente-header-section">
+                            <h5 class="cliente-nombre">
+                                <i class="fas fa-user-circle"></i> <span x-text="pedido.clienteDisplay"></span>
+                            </h5>
+                        </div>
+            
+                        <div class="pedido-body-content">
+                            <div class="productos-container">
+                                <template x-for="prod in pedido.productosParsed" :key="prod.id">
+                                    <div class="producto-item-modern">
+                                        <div class="producto-cantidad-modern" x-text="prod.cant"></div>
+                                        <div class="producto-detalle">
+                                            <div class="producto-nombre-modern" x-text="prod.name"></div>
+                                            <template x-if="prod.obs">
+                                                <div class="producto-observacion" x-text="prod.obs"></div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template x-if="pedido.productosParsed.length === 0">
+                                    <div class="producto-item-modern justify-content-center text-center p-3" style="background: transparent; border: 2px dashed #ffcdd2; color: #d32f2f;">
+                                        <div>
+                                            <div class="fw-bold" style="font-size: 0.95rem;">
+                                                <i class="fas fa-exclamation-triangle me-1"></i> SIN PRODUCTOS REGISTRADOS
+                                            </div>
+                                            <div style="font-size: 0.75rem; color: #e57373;">(Orden enviada vacía desde caja)</div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+            
+                            <div class="tipo-pedido-badge">
+                                <i class="fas fa-shopping-bag"></i> <span x-text="pedido.tipoPedidoTexto"></span>
+                            </div>
+                            
+                            <template x-if="pedido.obsGeneral">
+                                <div class="obs-general-box">
+                                    <div class="obs-general-title"><i class="fas fa-comment-alt"></i> OBSERVACIÓN GENERAL</div>
+                                    <p class="obs-general-text" x-text="pedido.obsGeneral"></p>
+                                </div>
+                            </template>
+                            
+                            <button class="btn-completar-modern" @click="marcarPedidoCompletado(pedido.idUnico)">
+                                <i class="fas fa-check"></i> COMPLETADO
+                            </button>
+            
+                            <div class="text-center mt-3 text-muted" style="font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px;">
+                                <i class="far fa-clock"></i> <span x-text="pedido.fechaFormateada"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
-        <div id="paginadorPedidos" class="mt-4"></div>
+
+        <div class="mt-4" x-show="totalPaginas > 1">
+            <nav aria-label="Paginador de pedidos">
+                <ul class="pagination justify-content-center align-items-center">
+                    <li class="page-item" :class="{'disabled': paginaActual === 1}">
+                        <button class="page-link" @click="paginaActual > 1 && paginaActual--">Anterior</button>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link" x-text="'Página ' + paginaActual + ' de ' + totalPaginas"></span>
+                    </li>
+                    <li class="page-item">
+                        <select class="form-select form-select-sm mx-2 paginador-select-inline" x-model="paginaActual" @change="seleccionarPagina($event.target.value)">
+                            <template x-for="p in paginasArray" :key="p">
+                                <option :value="p" x-text="p"></option>
+                            </template>
+                        </select>
+                    </li>
+                    <li class="page-item" :class="{'disabled': paginaActual === totalPaginas}">
+                        <button class="page-link" @click="paginaActual < totalPaginas && paginaActual++">Siguiente</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 
         <!-- Modal de Ajustes -->
-        <div class="modal fade" id="ajustesModal" tabindex="-1" aria-labelledby="ajustesModalLabel" aria-hidden="true">
+        <div class="modal fade" id="ajustesModal" tabindex="-1" aria-labelledby="ajustesModalLabel" aria-hidden="true" x-data="{ clave: '', auth: false, error: false}">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="ajustesModalLabel"><i class="fas fa-cog me-2"></i>Ajustes</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" @click="auth = false; clave = ''"></button>
               </div>
               <div class="modal-body">
-                <div id="ajustesPasswordSection">
+                <div x-show="!auth">
                   <label class="form-label">Ingrese contraseña para acceder a los ajustes:</label>
-                  <div class="input-group mb-2">
-                    <input type="password" class="form-control" id="ajustesPasswordInput" placeholder="Contraseña">
-                    <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" title="Mostrar/Ocultar contraseña">
-                      <i class="fas fa-eye" id="togglePasswordIcon" style="color:#6c757d;"></i>
+                  <div class="input-group mb-2" x-data="{ showPw: false }">
+                    <input :type="showPw ? 'text' : 'password'" class="form-control" x-model="clave" @keyup.enter="clave === 'dev2512++' ? auth = true : (error = true, clave = '')" placeholder="Contraseña">
+                    <button class="btn btn-outline-secondary" type="button" @click="showPw = !showPw" title="Mostrar/Ocultar contraseña">
+                      <i class="fas" :class="showPw ? 'fa-eye-slash' : 'fa-eye'" style="color:#6c757d;"></i>
                     </button>
                   </div>
-                  <div id="ajustesPasswordError" class="text-danger mb-2" style="display:none;">Contraseña incorrecta</div>
-                  <button type="button" class="btn btn-primary w-100" id="ajustesPasswordBtn">Acceder</button>
+                  <div class="text-danger mb-2" x-show="error">Contraseña incorrecta</div>
+                  <button type="button" class="btn btn-primary w-100" @click="clave === 'dev2512++' ? auth = true : (error = true, clave = '')">Acceder</button>
                 </div>
-                <div id="ajustesOpcionesSection" style="display:none;">
+                <div x-show="auth">
                   <div class="mb-3">
                     <label class="form-label">Filtrar pedidos del día (En Adelante)</label>
                     <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="ajustesFiltroHoy" checked>
-                      <label class="form-check-label" for="ajustesFiltroHoy">Mostrar solo pedidos de hoy</label>
+                      <input class="form-check-input" type="checkbox" :checked="filtroHoyActivo" @change="toggleFiltroHoy()">
+                      <label class="form-check-label">Mostrar solo pedidos de hoy</label>
                     </div>
                   </div>
                   <hr>
                   <div class="mb-3">
                     <label class="form-label fw-bold"><i class="fas fa-filter me-1"></i> Administración de Filtro de Productos</label>
                     <p class="text-muted small mb-2">Ingrese los nombres de los productos a filtrar (uno por línea). Solo los pedidos que contengan al menos uno de estos productos serán mostrados.</p>
-                    <textarea class="form-control mb-2" id="filtroProductosTextarea" rows="6" placeholder="Cargando filtros..."></textarea>
-                    <button type="button" class="btn btn-success w-100" id="guardarFiltrosBtn">
-                      <i class="fas fa-save me-1"></i> Guardar Filtros
+                    <textarea class="form-control mb-2" x-model="filtroTexto" rows="6"></textarea>
+                    <button type="button" class="btn btn-success w-100" @click="guardarFiltros()" :disabled="guardando">
+                      <span x-show="!guardando"><i class="fas fa-save me-1"></i> Guardar Filtros</span>
+                      <span x-show="guardando"><i class="fas fa-spinner fa-spin me-1"></i> Guardando...</span>
                     </button>
-                    <div id="guardarFiltrosMsg" class="mt-2 text-center" style="display:none; font-size:0.9em;"></div>
+                    <div x-show="msgFiltros.show" x-html="msgFiltros.text" :class="msgFiltros.class" class="mt-2 text-center" style="font-size:0.9em;" x-transition></div>
                   </div>
                   <hr>
                   <div class="mb-3">
                     <label class="form-label">Limpiar memoria localStorage automáticamente</label>
                     <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="ajustesLimpiarLocalStorage">
-                      <label class="form-check-label" for="ajustesLimpiarLocalStorage">Limpiar memoria cada día a las 12 am</label>
+                      <input class="form-check-input" type="checkbox" disabled checked>
+                      <label class="form-check-label">Limpiar memoria cada día a las 12 am</label>
                     </div>
-                    <div id="limpiezaNotificacion" class="text-success mt-2" style="display:none;font-size:0.95em;"></div>
                   </div>
                   <hr>
                   <div class="mb-3">
                     <label class="form-label">Link de esta Pantalla</label>
                     <div class="input-group">
-                      <input type="text" class="form-control" id="linkActualInput" readonly>
-                      <button class="btn btn-outline-primary" type="button" id="btnCopiarLink" title="Copiar enlace">
+                      <input type="text" class="form-control" x-model="linkActual" readonly>
+                      <button class="btn btn-outline-primary" type="button" @click="copiarTexto(linkActual, $el)" title="Copiar enlace">
                         <i class="fas fa-copy"></i>
                       </button>
                     </div>
@@ -87,8 +174,8 @@
                   <div class="mb-3">
                     <label class="form-label">IP del Servidor (Red Local)</label>
                     <div class="input-group">
-                      <input type="text" class="form-control" id="ipServidorInput" readonly placeholder="Cargando...">
-                      <button class="btn btn-outline-primary" type="button" id="btnCopiarIp" title="Copiar IP">
+                      <input type="text" class="form-control" x-model="ipServidor" readonly>
+                      <button class="btn btn-outline-primary" type="button" @click="copiarTexto(ipServidor, $el)" title="Copiar IP">
                         <i class="fas fa-copy"></i>
                       </button>
                     </div>
@@ -96,169 +183,25 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="auth = false; clave = ''">Cerrar</button>
               </div>
             </div>
           </div>
         </div>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="/js/pedidos3.js"></script>
-    <!-- Botón flotante para probar sonido y texto de ayuda -->
+    
     <div id="probarSonidoContainer">
-      <span id="textoSonidoAyuda" style="display: none;">Para recibir alertas, <b>active el sonido aquí</b> <i class="fas fa-arrow-down"></i></span>
-      <button id="btnProbarSonido" title="Probar sonido de alerta">
-        <i class="fas fa-volume-up me-2"></i>
-        <span>Activar Sonido</span>
-      </button>
+        <span x-show="textoSonidoAyuda">Para recibir alertas, <b>active el sonido aquí</b> <i class="fas fa-arrow-down"></i></span>
+        <button id="btnProbarSonido" title="Probar sonido de alerta" @click="probarSonido()">
+            <i class="fas fa-volume-up me-2"></i>
+            <span x-text="textoSonidoAyuda ? 'Activar Sonido' : 'Sonido Activado'"></span>
+        </button>
     </div>
     <audio id="alertaAudio" src="/assets/sounds/alerta1.mp3" preload="auto"></audio>
     <audio id="alertaAudioTest" src="/assets/sounds/testsound.mp3" preload="auto"></audio>
-    <script>
-    // Lógica de autenticación para el modal de ajustes
-    (function() {
-      const ajustesBtn = document.getElementById('ajustesBtn');
-      const ajustesModal = document.getElementById('ajustesModal');
-      const passwordSection = document.getElementById('ajustesPasswordSection');
-      const opcionesSection = document.getElementById('ajustesOpcionesSection');
-      const passwordInput = document.getElementById('ajustesPasswordInput');
-      const passwordBtn = document.getElementById('ajustesPasswordBtn');
-      const passwordError = document.getElementById('ajustesPasswordError');
-      let accesoConcedido = false;
-
-      if (ajustesBtn && ajustesModal) {
-        ajustesBtn.addEventListener('click', function() {
-          accesoConcedido = false;
-          passwordSection.style.display = '';
-          opcionesSection.style.display = 'none';
-          passwordInput.value = '';
-          passwordError.style.display = 'none';
-        });
-      }
-      if (passwordBtn) {
-        passwordBtn.addEventListener('click', function() {
-          if (passwordInput.value === 'dev2512++') {
-            accesoConcedido = true;
-            passwordSection.style.display = 'none';
-            opcionesSection.style.display = '';
-          } else {
-            passwordError.style.display = '';
-            passwordInput.value = '';
-          }
-        });
-      }
-      // Permitir Enter para enviar
-      if (passwordInput) {
-        passwordInput.addEventListener('keyup', function(e) {
-          if (e.key === 'Enter') passwordBtn.click();
-        });
-      }
-
-      // Alternar visibilidad de la contraseña
-      const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-      const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-      if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
-        togglePasswordBtn.addEventListener('click', function() {
-          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-          passwordInput.setAttribute('type', type);
-          
-          if (type === 'text') {
-            togglePasswordIcon.classList.remove('fa-eye');
-            togglePasswordIcon.classList.add('fa-eye-slash');
-          } else {
-            togglePasswordIcon.classList.remove('fa-eye-slash');
-            togglePasswordIcon.classList.add('fa-eye');
-          }
-        });
-      }
-    })();
-    // Botón flotante para probar sonido y activar preferencias
-    (function() {
-      const btnProbarSonido = document.getElementById('btnProbarSonido');
-      const alertaAudio = document.getElementById('alertaAudio');
-      const alertaAudioTest = document.getElementById('alertaAudioTest');
-      const textoAyuda = document.getElementById('textoSonidoAyuda');
-      if (!btnProbarSonido || !alertaAudio || !alertaAudioTest) return;
-
-      // Al cargar, el sonido está deshabilitado por defecto por políticas del navegador
-      localStorage.setItem('sonidoHabilitadoPedidos', 'false');
-      
-      // Mostrar el texto de ayuda si el sonido no ha sido habilitado
-      if (localStorage.getItem('sonidoHabilitadoPedidos') !== 'true' && textoAyuda) {
-          textoAyuda.style.display = 'block';
-      }
-
-      btnProbarSonido.addEventListener('click', function() {
-        // Si ya está activado, no hacer nada
-        if (localStorage.getItem('sonidoHabilitadoPedidos') === 'true') return;
-
-        alertaAudioTest.currentTime = 0;
-        alertaAudioTest.play().then(() => {
-          // Guardar preferencia en localStorage
-          localStorage.setItem('sonidoHabilitadoPedidos', 'true');
-          btnProbarSonido.innerHTML = '<i class="fas fa-check-circle me-2"></i> <span>Sonido Activado</span>';
-          btnProbarSonido.classList.add('sonido-activado');
-          
-          // Ocultar el texto de ayuda
-          if (textoAyuda) {
-              textoAyuda.style.display = 'none';
-          }
-        }).catch(() => {
-          // Si hay error, probablemente el navegador bloqueó el sonido
-          alert('No se pudo reproducir el sonido. Verifique permisos del navegador.');
-        });
-      });
-    })();
-
-    // Lógica para copiar al portapapeles y cargar IP
-    document.addEventListener('DOMContentLoaded', () => {
-        const linkInput = document.getElementById('linkActualInput');
-        const ipInput = document.getElementById('ipServidorInput');
-        const btnCopiarLink = document.getElementById('btnCopiarLink');
-        const btnCopiarIp = document.getElementById('btnCopiarIp');
-
-        if (linkInput) {
-            linkInput.value = window.location.href;
-        }
-
-        if (ipInput) {
-            fetch('/ajustes/ip')
-                .then(res => res.json())
-                .then(data => {
-                    ipInput.value = data.ip;
-                })
-                .catch(err => {
-                    console.error('Error obteniendo IP:', err);
-                    ipInput.value = 'Error al obtener IP';
-                });
-        }
-
-        const copiarTexto = (inputEl, btnEl) => {
-            if (!inputEl.value) return;
-            inputEl.select();
-            inputEl.setSelectionRange(0, 99999); 
-            try {
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(inputEl.value);
-                } else {
-                    document.execCommand('copy');
-                }
-                const iconoOri = btnEl.innerHTML;
-                btnEl.innerHTML = '<i class="fas fa-check text-success"></i>';
-                setTimeout(() => { btnEl.innerHTML = iconoOri; }, 2000);
-            } catch (err) {
-                console.error("No se pudo copiar", err);
-            }
-        };
-
-        if (btnCopiarLink && linkInput) {
-            btnCopiarLink.addEventListener('click', () => copiarTexto(linkInput, btnCopiarLink));
-        }
-        if (btnCopiarIp && ipInput) {
-            btnCopiarIp.addEventListener('click', () => copiarTexto(ipInput, btnCopiarIp));
-        }
-    });
-    </script>
 </body>
 </html>

@@ -9,8 +9,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/pedidos.css">
+    <!-- Alpine JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body>
+<body x-data="pedidosAdmin()">
 
 <div class="portal-container">
     
@@ -46,12 +48,13 @@
                 <h5 class="mb-3 fw-bold"><i class="fas fa-list-ul me-2"></i>Gestión de Filtro (Pedidos 3)</h5>
                 <p class="text-muted small">Agregue, edite o elimine los nombres de los productos que deba filtrar la pantalla secundaria. Escriba <strong>un producto por línea</strong>. Los cambios aplicarán inmediatamente.</p>
                 
-                <textarea class="form-control mb-3" id="filtroTextarea" rows="8" placeholder="Cargando configuración actual..."></textarea>
+                <textarea class="form-control mb-3" x-model="filtroTexto" rows="8"></textarea>
                 
-                <button class="btn btn-primary-custom w-100 mb-2" id="guardarFiltrosBtn">
-                    <i class="fas fa-save me-2"></i> Guardar Filtros al Servidor
+                <button class="btn btn-primary-custom w-100 mb-2" @click="guardarFiltros()" :disabled="guardando">
+                    <span x-show="!guardando"><i class="fas fa-save me-2"></i> Guardar Filtros al Servidor</span>
+                    <span x-show="guardando"><i class="fas fa-spinner fa-spin me-2"></i> Guardando...</span>
                 </button>
-                <div id="filtroAlertMsg" class="alert-message text-center"></div>
+                <div x-show="msgInfo.show" x-html="msgInfo.text" :class="msgInfo.class" class="text-center mt-2" x-transition></div>
             </div>
 
             <!-- Columna Derecha: Accesos y Mantenimiento -->
@@ -62,11 +65,11 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-primary">Pantalla General (Pedidos 2)</label>
                     <div class="input-group">
-                      <input type="text" class="form-control form-control-sm" id="linkP2" readonly placeholder="Cargando...">
-                      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyP2" title="Copiar enlace">
+                      <input type="text" class="form-control form-control-sm" x-model="linkP2" readonly>
+                      <button class="btn btn-outline-secondary btn-sm" type="button" @click="copyLink('linkP2', $el)" title="Copiar enlace">
                         <i class="fas fa-copy"></i>
                       </button>
-                      <a href="/pedidos2.html" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
+                      <a :href="linkP2" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
                         <i class="fas fa-external-link-alt"></i> Abrir
                       </a>
                     </div>
@@ -75,11 +78,11 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-primary">Pantalla Filtrada (Pedidos 3)</label>
                     <div class="input-group">
-                      <input type="text" class="form-control form-control-sm" id="linkP3" readonly placeholder="Cargando...">
-                      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyP3" title="Copiar enlace">
+                      <input type="text" class="form-control form-control-sm" x-model="linkP3" readonly>
+                      <button class="btn btn-outline-secondary btn-sm" type="button" @click="copyLink('linkP3', $el)" title="Copiar enlace">
                         <i class="fas fa-copy"></i>
                       </button>
-                      <a href="/pedidos3.html" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
+                      <a :href="linkP3" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
                         <i class="fas fa-external-link-alt"></i> Abrir
                       </a>
                     </div>
@@ -87,7 +90,7 @@
 
                 <div class="mt-4 pt-3 border-top d-none">
                     <h5 class="mb-2 fw-bold"><i class="fas fa-broom me-2"></i>Caché</h5>
-                    <button class="btn btn-outline-danger w-100 btn-sm" id="btnLimpiarCache">
+                    <button class="btn btn-outline-danger w-100 btn-sm" @click="limpiarCache()">
                         <i class="fas fa-trash-alt me-2"></i> Limpiar Caché de Ordenes
                     </button>
                 </div>
