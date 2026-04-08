@@ -10,7 +10,7 @@
     <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body x-data="gestorPedidosFiltros()">
+<body x-data="gestorPedidos(true)">
     <div class="container py-4">
         <div class="header-responsive d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center mb-4 gap-2 gap-sm-0">
             <h1 class="mb-0 main-title text-center text-sm-start w-100 w-sm-auto">
@@ -192,7 +192,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="/js/pedidos3.js"></script>
+    <script src="/js/pedidos-manager.js"></script>
     
     <div id="probarSonidoContainer">
         <span x-show="textoSonidoAyuda">Para recibir alertas, <b>active el sonido aquí</b> <i class="fas fa-arrow-down"></i></span>
@@ -201,7 +201,7 @@
             <span x-text="textoSonidoAyuda ? 'Activar Sonido' : 'Sonido Activado'"></span>
         </button>
     </div>
-    <audio id="alertaAudio" src="/assets/sounds/alerta1.mp3" preload="auto"></audio>
-    <audio id="alertaAudioTest" src="/assets/sounds/testsound.mp3" preload="auto"></audio>
+    <audio id="alertaAudio" preload="auto"></audio>
+    <audio id="alertaAudioTest" src="/assets/sounds/notificaciones.mp3" preload="auto"></audio>
 </body>
 </html>

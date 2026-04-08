@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    Alpine.data('gestorPedidosFiltros', () => ({
+    Alpine.data('gestorPedidos', (usarFiltros = false) => ({
         todosLosPedidos: [],
         paginaActual: 1,
         pedidosPorPagina: 24,
@@ -9,10 +9,17 @@ document.addEventListener('alpine:init', () => {
         alertaAudio: null,
         alertaAudioTest: null,
         textoSonidoAyuda: true,
+        sonidosPedidos: [
+            '/assets/sounds/pedidos/pedido1.mp3',
+            '/assets/sounds/pedidos/pedido2.mp3',
+            '/assets/sounds/pedidos/pedido3.mp3'
+        ],
         
-        // Settings Modal & Filtros
+        // Settings & IP
         linkActual: '',
         ipServidor: 'Cargando...',
+
+        // Filtros logic (active only if usarFiltros is true)
         filtrosProductos: [],
         filtroTexto: 'Cargando filtros...',
         guardando: false,
@@ -34,8 +41,8 @@ document.addEventListener('alpine:init', () => {
 
         async init() {
             this.linkActual = window.location.href;
-            this.alertaAudio = document.getElementById('alertaAudio') || new Audio('/assets/sounds/alerta1.mp3');
-            this.alertaAudioTest = document.getElementById('alertaAudioTest') || new Audio('/assets/sounds/testsound.mp3');
+            this.alertaAudio = document.getElementById('alertaAudio') || new Audio();
+            this.alertaAudioTest = document.getElementById('alertaAudioTest') || new Audio('/assets/sounds/notificaciones.mp3');
             
             // Sonido
             if (localStorage.getItem('sonidoHabilitadoPedidos') !== 'true') {
@@ -58,8 +65,11 @@ document.addEventListener('alpine:init', () => {
             this.scheduleDailyClean();
             this.cargarIP();
 
-            // Cargar filtros y luego inicializar requests
-            await this.cargarFiltros();
+            // Cargar filtros si es necesario
+            if (usarFiltros) {
+                await this.cargarFiltros();
+            }
+            
             this.cargarPedidos(true);
             setInterval(() => this.cargarPedidos(false), 10000);
         },
@@ -160,7 +170,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         filtrarPedidoPorProductos(pedido) {
-            if (this.filtrosProductos.length === 0) return null;
+            if (!usarFiltros || this.filtrosProductos.length === 0) return pedido;
             
             let productos = (pedido.producto || '').split(',');
             let cantidades = (pedido.cantidad || '').split(',');
@@ -215,6 +225,8 @@ document.addEventListener('alpine:init', () => {
                 const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
                 if (!this.esCargaInicial && nuevos.length > 0 && sonidoHabilitado) {
                     try {
+                        const randomSound = this.sonidosPedidos[Math.floor(Math.random() * this.sonidosPedidos.length)];
+                        this.alertaAudio.src = randomSound;
                         this.alertaAudio.currentTime = 0;
                         const playPromise = this.alertaAudio.play();
                         if (playPromise !== undefined) playPromise.catch(() => {});
