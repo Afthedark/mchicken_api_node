@@ -436,8 +436,9 @@ body {
     }
 }
 
-/* Ocultar título y fecha de actualización */
+/* Ocultar título y fecha de actualización - COMENTADO PARA MOSTRARLOS
 .main-title,
 #ultimaActualizacion {
     display: none !important;
 }
+*/

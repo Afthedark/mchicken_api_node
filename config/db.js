@@ -1,9 +1,9 @@
 const mysql = require('mysql');
 
 const db = mysql.createConnection({
-    host: 'localhost', // Aqui va el ip de la maquina central, la otra computadora
+    host: '172.21.22.248', // Aqui va el ip de la maquina central, la otra computadora o usar localhost si es la misma maquina
     user: 'root', // usuario dos 
-    password: '',
+    password: 'alfi',
     database: 'pv_mchicken',
     port: 3308
 });

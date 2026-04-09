@@ -121,7 +121,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         probarSonido() {
-            if (localStorage.getItem('sonidoHabilitadoPedidos') === 'true') return;
+            // Siempre permitimos reproducir el sonido de prueba para "desbloquear" el audio en la sesión actual del navegador
             this.alertaAudioTest.currentTime = 0;
             this.alertaAudioTest.play().then(() => {
                 localStorage.setItem('sonidoHabilitadoPedidos', 'true');
@@ -131,7 +131,11 @@ document.addEventListener('alpine:init', () => {
                     btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> <span>Sonido Activado</span>';
                     btn.classList.add('sonido-activado');
                 }
-            }).catch(() => alert('No se pudo reproducir el sonido. Verifique permisos del navegador.'));
+                console.log('[KDS] Sonido habilitado y activo mediante gesto de usuario.');
+            }).catch((err) => {
+                console.error('[KDS] Error al activar sonido:', err);
+                alert('No se pudo reproducir el sonido. Por favor, asegúrese de haber interactuado con la página y que el navegador no esté bloqueando el audio.');
+            });
         },
 
         async cargarIP() {
@@ -222,15 +226,30 @@ document.addEventListener('alpine:init', () => {
                 const idsActuales = parsedPedidos.map(p => p.idUnico);
                 const nuevos = idsActuales.filter(id => !this.ultimosIdsPedidos.includes(id));
                 
+                if (nuevos.length > 0) {
+                    console.log(`[KDS] ${nuevos.length} nuevos pedidos detectados:`, nuevos);
+                }
+
                 const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
                 if (!this.esCargaInicial && nuevos.length > 0 && sonidoHabilitado) {
                     try {
                         const randomSound = this.sonidosPedidos[Math.floor(Math.random() * this.sonidosPedidos.length)];
+                        console.log(`[KDS] Intentando reproducir sonido: ${randomSound}`);
                         this.alertaAudio.src = randomSound;
                         this.alertaAudio.currentTime = 0;
                         const playPromise = this.alertaAudio.play();
-                        if (playPromise !== undefined) playPromise.catch(() => {});
-                    } catch (e) {}
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                console.log('[KDS] Sonido reproducido con éxito.');
+                            }).catch((err) => {
+                                console.warn('[KDS] Error al reproducir sonido (bloqueo de navegador?):', err);
+                            });
+                        }
+                    } catch (e) {
+                        console.error('[KDS] Error crítico en lógica de sonido:', e);
+                    }
+                } else if (!this.esCargaInicial && nuevos.length > 0 && !sonidoHabilitado) {
+                    console.info('[KDS] Nuevo pedido detectado pero el sonido está desactivado en este equipo.');
                 }
 
                 this.todosLosPedidos = parsedPedidos;
