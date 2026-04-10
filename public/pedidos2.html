@@ -185,8 +185,8 @@
     
     <div id="probarSonidoContainer">
         <span x-show="textoSonidoAyuda">Para recibir alertas, <b>active el sonido aquí</b> <i class="fas fa-arrow-down"></i></span>
-        <button id="btnProbarSonido" title="Probar sonido de alerta" @click="probarSonido()">
-            <i class="fas fa-volume-up me-2"></i>
+        <button id="btnProbarSonido" title="Probar sonido de alerta" @click="probarSonido()" :class="{'sonido-activado': !textoSonidoAyuda}">
+            <i class="fas" :class="textoSonidoAyuda ? 'fa-volume-up' : 'fa-check-circle'"></i>
             <span x-text="textoSonidoAyuda ? 'Activar Sonido' : 'Sonido Activado'"></span>
         </button>
     </div>

@@ -9,6 +9,7 @@ document.addEventListener('alpine:init', () => {
         alertaAudio: null,
         alertaAudioTest: null,
         textoSonidoAyuda: true,
+        sonidoHabilitado: false,
         sonidosPedidos: [
             '/assets/sounds/pedidos/pedido1.mp3',
             '/assets/sounds/pedidos/pedido2.mp3',
@@ -44,13 +45,9 @@ document.addEventListener('alpine:init', () => {
             this.alertaAudio = document.getElementById('alertaAudio') || new Audio();
             this.alertaAudioTest = document.getElementById('alertaAudioTest') || new Audio('/assets/sounds/notificaciones.mp3');
             
-            // Sonido
-            if (localStorage.getItem('sonidoHabilitadoPedidos') !== 'true') {
-                localStorage.setItem('sonidoHabilitadoPedidos', 'false');
-                this.textoSonidoAyuda = true;
-            } else {
-                this.textoSonidoAyuda = false;
-            }
+            // Sonido (Debe requerir interacción del usuario con cada recarga de la página para que los navegadores no bloqueen el audio)
+            this.textoSonidoAyuda = true;
+            this.sonidoHabilitado = false;
 
             // Filtro Hoy
             const filtroHoyGuardado = localStorage.getItem('filtroHoyActivo');
@@ -124,13 +121,8 @@ document.addEventListener('alpine:init', () => {
             // Siempre permitimos reproducir el sonido de prueba para "desbloquear" el audio en la sesión actual del navegador
             this.alertaAudioTest.currentTime = 0;
             this.alertaAudioTest.play().then(() => {
-                localStorage.setItem('sonidoHabilitadoPedidos', 'true');
+                this.sonidoHabilitado = true;
                 this.textoSonidoAyuda = false;
-                const btn = document.getElementById('btnProbarSonido');
-                if (btn) {
-                    btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> <span>Sonido Activado</span>';
-                    btn.classList.add('sonido-activado');
-                }
                 console.log('[KDS] Sonido habilitado y activo mediante gesto de usuario.');
             }).catch((err) => {
                 console.error('[KDS] Error al activar sonido:', err);
@@ -230,7 +222,7 @@ document.addEventListener('alpine:init', () => {
                     console.log(`[KDS] ${nuevos.length} nuevos pedidos detectados:`, nuevos);
                 }
 
-                const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
+                const sonidoHabilitado = this.sonidoHabilitado;
                 if (!this.esCargaInicial && nuevos.length > 0 && sonidoHabilitado) {
                     try {
                         const randomSound = this.sonidosPedidos[Math.floor(Math.random() * this.sonidosPedidos.length)];
