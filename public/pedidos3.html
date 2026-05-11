@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos Filtrados - Mama Chicken</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-4">
+        <div class="header-responsive d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center mb-4 gap-2 gap-sm-0">
+            <h1 class="mb-0 main-title text-center text-sm-start w-100 w-sm-auto">
+                <i class="fas fa-utensils me-2"></i>
+                Pedidos a Preparar (Filtrados)
+            </h1>
+            <span id="ultimaActualizacion" class="ultima-actualizacion-ui text-center text-sm-start w-100 w-sm-auto">
+                <!-- El JS coloca aquí la fecha -->
+            </span>
+            <button id="ajustesBtn" class="btn btn-light shadow-sm px-2 py-2 ms-0 ms-sm-2 w-100 w-sm-auto" title="Ajustes">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        <div id="tarjetasPedidos" class="row">
+            <!-- Las tarjetas de pedidos se cargarán aquí -->
+        </div>
+        <div id="paginadorPedidos" class="mt-4"></div>
+
+        <!-- Modal de Ajustes -->
+        <div class="modal fade" id="ajustesModal" tabindex="-1" aria-labelledby="ajustesModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="ajustesModalLabel"><i class="fas fa-cog me-2"></i>Ajustes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+                <div id="ajustesPasswordSection">
+                  <label class="form-label">Ingrese contraseña para acceder a los ajustes:</label>
+                  <div class="input-group mb-2">
+                    <input type="password" class="form-control" id="ajustesPasswordInput" placeholder="Contraseña">
+                    <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" title="Mostrar/Ocultar contraseña">
+                      <i class="fas fa-eye" id="togglePasswordIcon" style="color:#6c757d;"></i>
+                    </button>
+                  </div>
+                  <div id="ajustesPasswordError" class="text-danger mb-2" style="display:none;">Contraseña incorrecta</div>
+                  <button type="button" class="btn btn-primary w-100" id="ajustesPasswordBtn">Acceder</button>
+                </div>
+                <div id="ajustesOpcionesSection" style="display:none;">
+                  <div class="mb-3">
+                    <label class="form-label">Filtrar pedidos del día (En Adelante)</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="ajustesFiltroHoy" checked>
+                      <label class="form-check-label" for="ajustesFiltroHoy">Mostrar solo pedidos de hoy</label>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fas fa-filter me-1"></i> Administración de Filtro de Productos</label>
+                    <p class="text-muted small mb-2">Ingrese los nombres de los productos a filtrar (uno por línea). Solo los pedidos que contengan al menos uno de estos productos serán mostrados.</p>
+                    <textarea class="form-control mb-2" id="filtroProductosTextarea" rows="6" placeholder="Cargando filtros..."></textarea>
+                    <button type="button" class="btn btn-success w-100" id="guardarFiltrosBtn">
+                      <i class="fas fa-save me-1"></i> Guardar Filtros
+                    </button>
+                    <div id="guardarFiltrosMsg" class="mt-2 text-center" style="display:none; font-size:0.9em;"></div>
+                  </div>
+                  <hr>
+                  <div class="mb-3">
+                    <label class="form-label">Limpiar memoria localStorage automáticamente</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="ajustesLimpiarLocalStorage">
+                      <label class="form-check-label" for="ajustesLimpiarLocalStorage">Limpiar memoria cada día a las 12 am</label>
+                    </div>
+                    <div id="limpiezaNotificacion" class="text-success mt-2" style="display:none;font-size:0.95em;"></div>
+                  </div>
+                  <hr>
+                  <div class="mb-3">
+                    <label class="form-label">Link de esta Pantalla</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="linkActualInput" readonly>
+                      <button class="btn btn-outline-primary" type="button" id="btnCopiarLink" title="Copiar enlace">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">IP del Servidor (Red Local)</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="ipServidorInput" readonly placeholder="Cargando...">
+                      <button class="btn btn-outline-primary" type="button" id="btnCopiarIp" title="Copiar IP">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/js/pedidos3.js"></script>
+    <!-- Botón flotante para probar sonido y texto de ayuda -->
+    <div id="probarSonidoContainer">
+      <span id="textoSonidoAyuda" style="display: none;">Para recibir alertas, <b>active el sonido aquí</b> <i class="fas fa-arrow-down"></i></span>
+      <button id="btnProbarSonido" title="Probar sonido de alerta">
+        <i class="fas fa-volume-up me-2"></i>
+        <span>Activar Sonido</span>
+      </button>
+    </div>
+    <audio id="alertaAudio" src="/assets/sounds/alerta1.mp3" preload="auto"></audio>
+    <audio id="alertaAudioTest" src="/assets/sounds/testsound.mp3" preload="auto"></audio>
+    <script>
+    // Lógica de autenticación para el modal de ajustes
+    (function() {
+      const ajustesBtn = document.getElementById('ajustesBtn');
+      const ajustesModal = document.getElementById('ajustesModal');
+      const passwordSection = document.getElementById('ajustesPasswordSection');
+      const opcionesSection = document.getElementById('ajustesOpcionesSection');
+      const passwordInput = document.getElementById('ajustesPasswordInput');
+      const passwordBtn = document.getElementById('ajustesPasswordBtn');
+      const passwordError = document.getElementById('ajustesPasswordError');
+      let accesoConcedido = false;
+
+      if (ajustesBtn && ajustesModal) {
+        ajustesBtn.addEventListener('click', function() {
+          accesoConcedido = false;
+          passwordSection.style.display = '';
+          opcionesSection.style.display = 'none';
+          passwordInput.value = '';
+          passwordError.style.display = 'none';
+        });
+      }
+      if (passwordBtn) {
+        passwordBtn.addEventListener('click', function() {
+          if (passwordInput.value === 'dev2512++') {
+            accesoConcedido = true;
+            passwordSection.style.display = 'none';
+            opcionesSection.style.display = '';
+          } else {
+            passwordError.style.display = '';
+            passwordInput.value = '';
+          }
+        });
+      }
+      // Permitir Enter para enviar
+      if (passwordInput) {
+        passwordInput.addEventListener('keyup', function(e) {
+          if (e.key === 'Enter') passwordBtn.click();
+        });
+      }
+
+      // Alternar visibilidad de la contraseña
+      const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+      const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+      if (togglePasswordBtn && passwordInput && togglePasswordIcon) {
+        togglePasswordBtn.addEventListener('click', function() {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          
+          if (type === 'text') {
+            togglePasswordIcon.classList.remove('fa-eye');
+            togglePasswordIcon.classList.add('fa-eye-slash');
+          } else {
+            togglePasswordIcon.classList.remove('fa-eye-slash');
+            togglePasswordIcon.classList.add('fa-eye');
+          }
+        });
+      }
+    })();
+    // Botón flotante para probar sonido y activar preferencias
+    (function() {
+      const btnProbarSonido = document.getElementById('btnProbarSonido');
+      const alertaAudio = document.getElementById('alertaAudio');
+      const alertaAudioTest = document.getElementById('alertaAudioTest');
+      const textoAyuda = document.getElementById('textoSonidoAyuda');
+      if (!btnProbarSonido || !alertaAudio || !alertaAudioTest) return;
+
+      // Al cargar, el sonido está deshabilitado por defecto por políticas del navegador
+      localStorage.setItem('sonidoHabilitadoPedidos', 'false');
+      
+      // Mostrar el texto de ayuda si el sonido no ha sido habilitado
+      if (localStorage.getItem('sonidoHabilitadoPedidos') !== 'true' && textoAyuda) {
+          textoAyuda.style.display = 'block';
+      }
+
+      btnProbarSonido.addEventListener('click', function() {
+        // Si ya está activado, no hacer nada
+        if (localStorage.getItem('sonidoHabilitadoPedidos') === 'true') return;
+
+        alertaAudioTest.currentTime = 0;
+        alertaAudioTest.play().then(() => {
+          // Guardar preferencia en localStorage
+          localStorage.setItem('sonidoHabilitadoPedidos', 'true');
+          btnProbarSonido.innerHTML = '<i class="fas fa-check-circle me-2"></i> <span>Sonido Activado</span>';
+          btnProbarSonido.classList.add('sonido-activado');
+          
+          // Ocultar el texto de ayuda
+          if (textoAyuda) {
+              textoAyuda.style.display = 'none';
+          }
+        }).catch(() => {
+          // Si hay error, probablemente el navegador bloqueó el sonido
+          alert('No se pudo reproducir el sonido. Verifique permisos del navegador.');
+        });
+      });
+    })();
+
+    // Lógica para copiar al portapapeles y cargar IP
+    document.addEventListener('DOMContentLoaded', () => {
+        const linkInput = document.getElementById('linkActualInput');
+        const ipInput = document.getElementById('ipServidorInput');
+        const btnCopiarLink = document.getElementById('btnCopiarLink');
+        const btnCopiarIp = document.getElementById('btnCopiarIp');
+
+        if (linkInput) {
+            linkInput.value = window.location.href;
+        }
+
+        if (ipInput) {
+            fetch('/ajustes/ip')
+                .then(res => res.json())
+                .then(data => {
+                    ipInput.value = data.ip;
+                })
+                .catch(err => {
+                    console.error('Error obteniendo IP:', err);
+                    ipInput.value = 'Error al obtener IP';
+                });
+        }
+
+        const copiarTexto = (inputEl, btnEl) => {
+            if (!inputEl.value) return;
+            inputEl.select();
+            inputEl.setSelectionRange(0, 99999); 
+            try {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(inputEl.value);
+                } else {
+                    document.execCommand('copy');
+                }
+                const iconoOri = btnEl.innerHTML;
+                btnEl.innerHTML = '<i class="fas fa-check text-success"></i>';
+                setTimeout(() => { btnEl.innerHTML = iconoOri; }, 2000);
+            } catch (err) {
+                console.error("No se pudo copiar", err);
+            }
+        };
+
+        if (btnCopiarLink && linkInput) {
+            btnCopiarLink.addEventListener('click', () => copiarTexto(linkInput, btnCopiarLink));
+        }
+        if (btnCopiarIp && ipInput) {
+            btnCopiarIp.addEventListener('click', () => copiarTexto(ipInput, btnCopiarIp));
+        }
+    });
+    </script>
+</body>
+</html>

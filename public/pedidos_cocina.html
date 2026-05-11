@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos Unificados - Mama Chicken</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100vw;
+            width: 100vw;
+            padding-left: 1.5vw !important;
+            padding-right: 1.5vw !important;
+        }
+
+        .iframe-container {
+            display: flex;
+            flex-direction: row;
+            gap: 0;
+            margin-top: 0.5rem;
+            height: 88vh;
+            flex-wrap: wrap;
+            background: #fffbe6;
+            border-radius: 1.2rem;
+            box-shadow: 0 4px 24px rgba(255, 179, 71, 0.10), 0 1.5px 0 #ffb347 inset;
+            overflow: hidden;
+            border: 2px solid #ffb347;
+        }
+
+        .iframe-box {
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            min-width: 320px;
+            max-width: 100vw;
+            height: 100%;
+            flex: 1 1 0;
+            position: relative;
+        }
+
+        .iframe-box:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 4%;
+            right: 0;
+            width: 2px;
+            height: 92%;
+            background: linear-gradient(to bottom, #ffb347 80%, transparent 100%);
+            z-index: 2;
+        }
+
+        .iframe-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0;
+            background: rgba(255, 179, 71, 0.1);
+            border-bottom: 1px solid #ffb347;
+        }
+
+        .iframe-title {
+            font-weight: 600;
+            font-size: 1.12rem;
+            color: #d17b00;
+            text-align: center;
+            letter-spacing: 0.5px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .iframe-icon {
+            margin-right: 0.5rem;
+            color: #d17b00;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 60vh;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            flex: 1 1 auto;
+        }
+
+        .settings-modal {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .ip-input {
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .btn-settings {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #ffb347;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1200px) {
+            .iframe-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .iframe-box {
+                min-width: 0;
+                width: 100%;
+                height: 44vh;
+                margin-bottom: 0;
+                padding: 0;
+            }
+
+            .iframe-box:not(:last-child)::after {
+                content: "";
+                position: absolute;
+                left: 4%;
+                bottom: 0;
+                width: 92%;
+                height: 2px;
+                background: linear-gradient(to right, #ffb347 80%, transparent 100%);
+                z-index: 2;
+                top: auto;
+                right: auto;
+            }
+
+            .iframe-title {
+                font-size: 1.08rem;
+            }
+
+            iframe {
+                height: 100%;
+                min-height: 32vh;
+                border-radius: 0;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .iframe-title {
+                font-size: 1.03rem;
+            }
+
+            .iframe-box {
+                height: 40vh;
+                margin-bottom: 1rem;
+                padding: 0.1rem 0.2rem 0.3rem 0.2rem;
+            }
+
+            iframe {
+                min-height: 26vh;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .iframe-title {
+                font-size: 0.98rem;
+            }
+
+            .iframe-box {
+                height: 38vh;
+                min-width: 0;
+                width: 100vw;
+                border-radius: 0.7rem;
+                margin-bottom: 0.7rem;
+                padding: 0.1rem 0.2rem 0.3rem 0.2rem;
+            }
+
+            iframe {
+                height: 100%;
+                min-height: 30vh;
+                border-radius: 0.5rem;
+            }
+
+            .container {
+                padding-left: 0.5vw !important;
+                padding-right: 0.5vw !important;
+            }
+
+            .btn-settings {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .iframe-header {
+                padding: 0.3rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .iframe-title {
+                font-size: 0.93rem;
+            }
+
+            .iframe-box {
+                height: 32vh;
+                margin-bottom: 0.5rem;
+                padding: 0.05rem 0.05rem 0.2rem 0.05rem;
+            }
+
+            iframe {
+                min-height: 20vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Botón de configuración -->
+    <button class="btn-settings" onclick="openSettings()" title="Configuración">
+        <i class="fas fa-cog fa-lg"></i>
+    </button>
+
+    <div class="container py-4">
+        <h1 class="mb-4 text-center"
+            style="background: linear-gradient(90deg, #ffb347 60%, #ffe5b4 100%); border-radius: 1rem; padding: 0.5rem 1.5rem; box-shadow: 0 2px 8px rgba(255,179,71,0.08); font-weight:700; letter-spacing:1px;">
+            <i class="fas fa-utensils me-2"></i>Pedidos a preparar Cocina
+        </h1>
+        <div class="iframe-container">
+            <div class="iframe-box">
+                <div class="iframe-header">
+                    <i class="fas fa-store iframe-icon"></i>
+                    <h3 class="iframe-title" id="titleA">Punto de Venta A</h3>
+                </div>
+                <iframe id="iframeA" src="" allowfullscreen title="Pedidos Punto de Venta A"></iframe>
+            </div>
+            <div class="iframe-box">
+                <div class="iframe-header">
+                    <i class="fas fa-store iframe-icon"></i>
+                    <h3 class="iframe-title" id="titleB">Punto de Venta B</h3>
+                </div>
+                <iframe id="iframeB" src="" allowfullscreen title="Pedidos Punto de Venta B"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configuración -->
+    <div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title"><i class="fas fa-cog me-2"></i>Configuración de Puntos de Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="configForm" novalidate>
+                        <div class="row">
+                            <!-- Punto de Venta A -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-store-alt me-2"></i>Punto de Venta A</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="titleAInput" class="form-label"><i
+                                                    class="fas fa-tag me-2 text-muted"></i>Título</label>
+                                            <input type="text" class="form-control" id="titleAInput"
+                                                placeholder="Ej: Caja 1" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="ipA" class="form-label"><i
+                                                    class="fas fa-network-wired me-2 text-muted"></i>Dirección
+                                                IP</label>
+                                            <input type="text" class="form-control ip-input" id="ipA"
+                                                placeholder="172.21.25.249" required>
+                                            <div class="form-text">Formato: xxx.xxx.xxx.xxx</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="screenA" class="form-label"><i
+                                                    class="fas fa-desktop me-2 text-muted"></i>Tipo de Pantalla</label>
+                                            <select class="form-select" id="screenA">
+                                                <option value="pedidos2.html">Pantalla General (pedidos2)</option>
+                                                <option value="pedidos3.html">Pantalla Filtrada (pedidos3)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Punto de Venta B -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-store-alt me-2"></i>Punto de Venta B</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="titleBInput" class="form-label"><i
+                                                    class="fas fa-tag me-2 text-muted"></i>Título</label>
+                                            <input type="text" class="form-control" id="titleBInput"
+                                                placeholder="Ej: Caja 2" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="ipB" class="form-label"><i
+                                                    class="fas fa-network-wired me-2 text-muted"></i>Dirección
+                                                IP</label>
+                                            <input type="text" class="form-control ip-input" id="ipB"
+                                                placeholder="172.21.25.248" required>
+                                            <div class="form-text">Formato: xxx.xxx.xxx.xxx</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="screenB" class="form-label"><i
+                                                    class="fas fa-desktop me-2 text-muted"></i>Tipo de Pantalla</label>
+                                            <select class="form-select" id="screenB">
+                                                <option value="pedidos2.html">Pantalla General (pedidos2)</option>
+                                                <option value="pedidos3.html">Pantalla Filtrada (pedidos3)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Limpieza Automática (Siempre Activa) -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card bg-light border-0 shadow-sm" style="border-radius: 0.8rem;">
+                                    <div class="card-body py-3">
+                                        <div class="form-check form-switch d-flex align-items-center mb-0"
+                                            title="Esta función está siempre activa para evitar saturación de memoria.">
+                                            <input class="form-check-input me-3" type="checkbox"
+                                                id="ajustesLimpiarLocalStorage" checked disabled
+                                                style="transform: scale(1.3); cursor: not-allowed; opacity: 0.6;">
+                                            <div>
+                                                <label class="form-check-label fw-bold text-dark"
+                                                    for="ajustesLimpiarLocalStorage" style="opacity: 0.8;">Limpiar
+                                                    memoria localStorage automáticamente</label>
+                                                <div class="form-text mt-0" style="opacity: 0.7; font-size: 0.85rem;">
+                                                    Limpiar memoria cada día a las 12 am</div>
+                                            </div>
+                                        </div>
+                                        <div id="limpiezaNotificacion" class="text-success mt-2 fw-semibold"
+                                            style="display:none;font-size:0.9rem;">
+                                            <i class="fas fa-check-circle me-1"></i> Memoria limpiada automáticamente
+                                            para el nuevo día.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span id="save-feedback" class="text-success me-auto"></span>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveConfig()"><i
+                            class="fas fa-save me-2"></i>Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para validar formato de IP
+        function validateIP(ip) {
+            const ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+            if (!ipPattern.test(ip)) return false;
+
+            const parts = ip.split('.');
+            return parts.every(part => parseInt(part) >= 0 && parseInt(part) <= 255);
+        }
+
+        // Cargar configuración desde localStorage o usar valores por defecto
+        function loadConfig() {
+            // Cargar IPs
+            const ipA = localStorage.getItem('ipA') || '172.21.25.249';
+            const ipB = localStorage.getItem('ipB') || '172.21.25.248';
+
+            // Cargar títulos
+            const titleA = localStorage.getItem('titleA') || 'Punto de Venta A';
+            const titleB = localStorage.getItem('titleB') || 'Punto de Venta B';
+
+            // Cargar Pantallas
+            const screenA = localStorage.getItem('screenA') || 'pedidos2.html';
+            const screenB = localStorage.getItem('screenB') || 'pedidos2.html';
+
+            // Actualizar títulos en la interfaz
+            document.getElementById('titleA').textContent = titleA;
+            document.getElementById('titleB').textContent = titleB;
+
+            // Actualizar iframes
+            if (validateIP(ipA)) {
+                document.getElementById('iframeA').src = `http://${ipA}:3000/${screenA}`;
+            }
+            if (validateIP(ipB)) {
+                document.getElementById('iframeB').src = `http://${ipB}:3000/${screenB}`;
+            }
+
+            return { ipA, ipB, titleA, titleB, screenA, screenB };
+        }
+
+        // Guardar configuración en localStorage
+        function saveConfig() {
+            const ipAInput = document.getElementById('ipA');
+            const ipBInput = document.getElementById('ipB');
+            const titleAInput = document.getElementById('titleAInput');
+            const titleBInput = document.getElementById('titleBInput');
+            const screenAInput = document.getElementById('screenA');
+            const screenBInput = document.getElementById('screenB');
+
+            const ipA = ipAInput.value.trim();
+            const ipB = ipBInput.value.trim();
+            const titleA = titleAInput.value.trim();
+            const titleB = titleBInput.value.trim();
+            const screenA = screenAInput.value;
+            const screenB = screenBInput.value;
+
+            let isValid = true;
+
+            // Validar IPs
+            if (!validateIP(ipA)) {
+                ipAInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                ipAInput.classList.remove('is-invalid');
+            }
+
+            if (!validateIP(ipB)) {
+                ipBInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                ipBInput.classList.remove('is-invalid');
+            }
+
+            // Validar títulos
+            if (!titleA) {
+                titleAInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                titleAInput.classList.remove('is-invalid');
+            }
+
+            if (!titleB) {
+                titleBInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                titleBInput.classList.remove('is-invalid');
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            // Guardar en localStorage
+            localStorage.setItem('ipA', ipA);
+            localStorage.setItem('ipB', ipB);
+            localStorage.setItem('titleA', titleA);
+            localStorage.setItem('titleB', titleB);
+            localStorage.setItem('screenA', screenA);
+            localStorage.setItem('screenB', screenB);
+
+            // Actualizar interfaz
+            document.getElementById('titleA').textContent = titleA;
+            document.getElementById('titleB').textContent = titleB;
+
+            // Actualizar iframes
+            document.getElementById('iframeA').src = `http://${ipA}:3000/${screenA}`;
+            document.getElementById('iframeB').src = `http://${ipB}:3000/${screenB}`;
+
+            // Feedback y cierre del modal
+            const feedbackEl = document.getElementById('save-feedback');
+            feedbackEl.textContent = '¡Guardado con éxito!';
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                feedbackEl.textContent = '';
+            }, 1500);
+        }
+
+        // Abrir modal de configuración
+        function openSettings() {
+            const { ipA, ipB, titleA, titleB, screenA, screenB } = loadConfig();
+            document.getElementById('ipA').value = ipA;
+            document.getElementById('ipB').value = ipB;
+            document.getElementById('titleAInput').value = titleA;
+            document.getElementById('titleBInput').value = titleB;
+            document.getElementById('screenA').value = screenA;
+            document.getElementById('screenB').value = screenB;
+
+            // Limpiar estados de validación
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+            modal.show();
+        }
+
+        // Cargar configuración al iniciar
+        document.addEventListener('DOMContentLoaded', function () {
+            loadConfig();
+
+            // Actualización en tiempo real de los títulos
+            document.getElementById('titleAInput').addEventListener('input', function () {
+                document.getElementById('titleA').textContent = this.value || 'Punto de Venta A';
+            });
+
+            document.getElementById('titleBInput').addEventListener('input', function () {
+                document.getElementById('titleB').textContent = this.value || 'Punto de Venta B';
+            });
+
+            // Validación visual de IP en tiempo real
+            document.getElementById('ipA').addEventListener('input', function () {
+                if (validateIP(this.value.trim())) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+
+            document.getElementById('ipB').addEventListener('input', function () {
+                if (validateIP(this.value.trim())) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+
+            // --- LIMPIEZA AUTOMÁTICA DE LOCALSTORAGE SIEMPRE ACTIVA ---
+            const notificacionLimpieza = document.getElementById('limpiezaNotificacion');
+            const LIMPIAR_FECHA_KEY = 'ultimaLimpiezaCocinaLocalStorage';
+
+            function limpiarLocalStorageCocina() {
+                // Borramos las claves de estado de pedidos para evitar que crezcan infinitamente.
+                // NO borramos 'ipA', 'ipB', 'titleA', 'titleB' porque son la configuración estática de este visor.
+                localStorage.removeItem('pedidosCompletados');
+                localStorage.removeItem('completedOrders');
+                localStorage.removeItem('filtroHoyActivo');
+                localStorage.setItem(LIMPIAR_FECHA_KEY, new Date().toISOString().slice(0, 10));
+
+                if (notificacionLimpieza) {
+                    notificacionLimpieza.style.display = 'block';
+                    setTimeout(() => { notificacionLimpieza.style.display = 'none'; }, 6000);
+                }
+            }
+
+            // Al cargar, si es un nuevo día, limpiar (pero nunca el primer día de uso)
+            (function () {
+                const ultimaLimpieza = localStorage.getItem(LIMPIAR_FECHA_KEY);
+                const hoy = new Date().toISOString().slice(0, 10);
+                if (!ultimaLimpieza) {
+                    // Primera vez: solo registrar la fecha, NO limpiar
+                    localStorage.setItem(LIMPIAR_FECHA_KEY, hoy);
+                } else if (ultimaLimpieza !== hoy) {
+                    limpiarLocalStorageCocina();
+                }
+            })();
+
+            // Programar limpieza diaria a las 12:00 am (siempre activa)
+            function programarLimpiezaDiaria() {
+                const ahora = new Date();
+                const manana = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 1, 0, 0, 5, 0); // 12:00:05 am
+                const msHastaManana = manana - ahora;
+                setTimeout(() => {
+                    limpiarLocalStorageCocina();
+                    programarLimpiezaDiaria();
+                }, msHastaManana);
+            }
+            programarLimpiezaDiaria();
+        });
+    </script>
+</body>
+
+</html>

@@ -24,8 +24,3 @@ if %errorlevel% neq 0 (
 echo Iniciando MChicken API con PM2...
 pm2 start ecosystem.config.js
 
-:: Mantener la ventana abierta para ver el estado
-echo.
-echo La aplicación se ha iniciado correctamente.
-echo Para ver los logs, ejecuta: pm2 logs mchicken-api
-timeout /t 5

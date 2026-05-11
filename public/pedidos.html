@@ -3,125 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos a Preparar - Mama Chicken</title>
+    <title>Portal KDS - Mama Chicken</title>
+    <!-- Fuentes y estilos -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/pedidos.css">
 </head>
 <body>
-    <div class="container py-4">
-        <div class="main-container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">
-                    <i class="fas fa-utensils me-2"></i>
-                    Pedidos a Preparar
-                </h1>
-                <div class="d-flex align-items-center">
-                    <button id="testSoundBtn" class="btn btn-outline-primary me-3" title="Probar sonido de notificación">
-                        <i class="fas fa-volume-up me-1"></i>
-                        Probar Sonido
+
+<div class="portal-container">
+    
+    <div class="portal-header">
+        <h1><i class="fas fa-drumstick-bite me-2"></i>Mama Chicken KDS</h1>
+        <p>Sistema Central de Distribución de Pedidos en Cocina</p>
+    </div>
+
+    <!-- Tópicos de Navegación -->
+    <div class="nav-cards">
+        <a href="/pedidos2.html" class="nav-card">
+            <i class="fas fa-list-alt"></i>
+            <h3>Pedidos Generales</h3>
+            <p>Ver absolutamente todos los pedidos que ingresan, sin restricciones.</p>
+        </a>
+
+        <a href="/pedidos3.html" class="nav-card secondary">
+            <i class="fas fa-filter"></i>
+            <h3>Pedidos Filtrados</h3>
+            <p>Ver exclusivamente las órdenes que contienen productos del filtro configurado.</p>
+        </a>
+    </div>
+
+    <!-- Panel de Administración Central -->
+    <div class="admin-panel mt-5">
+        <div class="admin-panel-title">
+            <i class="fas fa-cogs"></i> Panel de Administración Central
+        </div>
+
+        <div class="row">
+            <!-- Columna Izquierda: Filtros -->
+            <div class="col-md-7">
+                <h5 class="mb-3 fw-bold"><i class="fas fa-list-ul me-2"></i>Gestión de Filtro (Pedidos 3)</h5>
+                <p class="text-muted small">Agregue, edite o elimine los nombres de los productos que deba filtrar la pantalla secundaria. Escriba <strong>un producto por línea</strong>. Los cambios aplicarán inmediatamente.</p>
+                
+                <textarea class="form-control mb-3" id="filtroTextarea" rows="8" placeholder="Cargando configuración actual..."></textarea>
+                
+                <button class="btn btn-primary-custom w-100 mb-2" id="guardarFiltrosBtn">
+                    <i class="fas fa-save me-2"></i> Guardar Filtros al Servidor
+                </button>
+                <div id="filtroAlertMsg" class="alert-message text-center"></div>
+            </div>
+
+            <!-- Columna Derecha: Accesos y Mantenimiento -->
+            <div class="col-md-5 ps-md-4 mt-4 mt-md-0">
+                <h5 class="mb-3 fw-bold"><i class="fas fa-link me-2"></i>Accesos Directos</h5>
+                <p class="text-muted small">Copie o acceda a los enlaces directos de las pantallas con un solo clic.</p>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-primary">Pantalla General (Pedidos 2)</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control form-control-sm" id="linkP2" readonly placeholder="Cargando...">
+                      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyP2" title="Copiar enlace">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                      <a href="/pedidos2.html" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
+                        <i class="fas fa-external-link-alt"></i> Abrir
+                      </a>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-primary">Pantalla Filtrada (Pedidos 3)</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control form-control-sm" id="linkP3" readonly placeholder="Cargando...">
+                      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyP3" title="Copiar enlace">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                      <a href="/pedidos3.html" target="_blank" class="btn btn-primary btn-sm" title="Abrir en nueva pestaña">
+                        <i class="fas fa-external-link-alt"></i> Abrir
+                      </a>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top d-none">
+                    <h5 class="mb-2 fw-bold"><i class="fas fa-broom me-2"></i>Caché</h5>
+                    <button class="btn btn-outline-danger w-100 btn-sm" id="btnLimpiarCache">
+                        <i class="fas fa-trash-alt me-2"></i> Limpiar Caché de Ordenes
                     </button>
-                    <div id="ultimoActualizado">
-                        <i class="fas fa-sync-alt me-1"></i>
-                        <!-- La última actualización se mostrará aquí -->
-                    </div>
                 </div>
-            </div>
-            
-            <!-- Filtros de fecha -->
-            <div class="date-filters mb-4">
-                <div class="row g-3 align-items-center">
-                    <div class="col-auto">
-                        <label for="fechaInicio" class="col-form-label">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            Desde:
-                        </label>
-                    </div>
-                    <div class="col-auto">
-                        <input type="date" class="form-control" id="fechaInicio">
-                    </div>
-                    <div class="col-auto">
-                        <label for="fechaFin" class="col-form-label">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            Hasta:
-                        </label>
-                    </div>
-                    <div class="col-auto">
-                        <input type="date" class="form-control" id="fechaFin">
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-primary" id="filtrarFechas">
-                            <i class="fas fa-filter me-1"></i>
-                            Filtrar
-                        </button>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-outline-secondary" id="limpiarFiltros">
-                            <i class="fas fa-times me-1"></i>
-                            Limpiar
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>
-                                <i class="fas fa-hashtag me-1"></i>
-                                Orden
-                            </th>
-                            <th>
-                                <i class="fas fa-user me-1"></i>
-                                Cliente
-                            </th>                            <th>
-                                <i class="fas fa-hamburger me-1"></i>
-                                Productos y Cantidades
-                            </th>
-                            <th>
-                                <i class="fas fa-truck-moving me-1"></i>
-                                Tipo Pedido
-                            </th>
-                            <th>
-                                <i class="fas fa-comment-alt me-1"></i>
-                                Observaciones
-                            </th>
-                            <th>
-                                <i class="far fa-clock me-1"></i>
-                                Fecha
-                            </th>
-                            <th>
-                                <i class="fas fa-check-circle me-1"></i>
-                                Estado
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="pedidosTableBody">
-                        <!-- Los pedidos se cargarán dinámicamente aquí -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Controles de paginación -->
-            <div class="pagination justify-content-center">
-                <button id="prevPage" class="btn-nav">
-                    <i class="fas fa-chevron-left me-1"></i>
-                    Anterior
-                </button>
-                <span id="pageInfo"></span>
-                <select id="pageNumberSelect" class="form-select form-select-sm mx-2" style="width: 90px; display: inline-block;"></select>
-                <button id="nextPage" class="btn-nav">
-                    Siguiente
-                    <i class="fas fa-chevron-right ms-1"></i>
-                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <audio id="newOrderAudio" src="/assets/sounds/alerta1.mp3" preload="auto" style="display:none;"></audio>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="/js/pedidos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script type="module" src="/js/pedidos.js"></script>
 </body>
 </html>

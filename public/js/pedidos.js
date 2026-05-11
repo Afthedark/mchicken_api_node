@@ -1,311 +1,113 @@
-import { playNewOrderSound, testSound } from './pedidos_sound.js';
+document.addEventListener('DOMContentLoaded', async () => {
+    const filtroTextarea = document.getElementById('filtroTextarea');
+    const guardarBtn = document.getElementById('guardarFiltrosBtn');
+    const msg = document.getElementById('filtroAlertMsg');
+    const btnLimpiarCache = document.getElementById('btnLimpiarCache');
 
-// Lógica específica para la vista de pedidos
-let currentPage = 1;
-let currentFilters = {
-    fechaInicio: null,
-    fechaFin: null
-};
+    // Accesos Directos
+    const linkP2 = document.getElementById('linkP2');
+    const linkP3 = document.getElementById('linkP3');
+    const btnCopyP2 = document.getElementById('btnCopyP2');
+    const btnCopyP3 = document.getElementById('btnCopyP3');
 
-// Variables para el control de pedidos
-let lastPedidosData = [];
-let isFirstLoad = true;
-
-// Funciones para manejar pedidos
-async function fetchPedidos(page, callback) {
-    try {
-        let url = `/pedidos?page=${page}`;
-        if (currentFilters.fechaInicio) {
-            url += `&fechaInicio=${currentFilters.fechaInicio}`;
-        }
-        if (currentFilters.fechaFin) {
-            url += `&fechaFin=${currentFilters.fechaFin}`;
-        }
+    const setupShortcut = (inputEl, btnEl, path) => {
+        if (!inputEl) return;
         
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json();
-        
-        // Only check for new orders and play sound if we're on the first page
-        // and it's not the first load or a page navigation
-        if (!isFirstLoad && page === 1) {
-            const newPedidosCount = comparePedidos(lastPedidosData, data.pedidos || []);
-            console.log(`Nuevos pedidos detectados: ${newPedidosCount}`);
-            
-            if (newPedidosCount > 0) {
-                console.log('¡Nuevos pedidos! Reproduciendo sonido...');
-                await playNewOrderSound();
-            }
-        } else {
-            console.log('Primera carga o navegación de página, no reproducir sonido');
-            if (isFirstLoad) isFirstLoad = false;
-        }
-        
-        // Only update lastPedidosData when we're on the first page
-        if (page === 1) {
-            lastPedidosData = data.pedidos || [];
-        }
-
-        callback({
-            pedidos: data.pedidos,
-            totalPages: data.totalPages || 1
-        });
-    } catch (error) {
-        console.error('Error al obtener los pedidos:', error);
-        document.getElementById('pedidosTableBody').innerHTML = 
-            `<tr><td colspan="5" class="mensaje-error">${error.message}</td></tr>`;
-    }
-}
-
-function renderPedidos(pedidos, tableBodyId) {
-    const tableBody = document.getElementById(tableBodyId);
-    tableBody.innerHTML = '';
-    const completedOrders = getCompletedOrders();
-
-    if (!pedidos || !Array.isArray(pedidos)) {
-        tableBody.innerHTML = 
-            `<tr><td colspan="6" class="mensaje-error">No se encontraron pedidos o formato inválido</td></tr>`;
-        return;
-    }
-
-    try {
-        pedidos.forEach((pedido, index) => {
-            // Crear un ID único para el pedido basado en sus propiedades
-            const orderId = `${pedido.cliente}-${pedido.producto}-${pedido.fecha}-${index}`;
-            
-            // Si el pedido está marcado como completado, no lo mostramos
-            if (completedOrders.includes(orderId)) {
-                return;
-            }
-
-            const row = document.createElement('tr');
-            const completedButton = document.createElement('button');
-            completedButton.className = 'btn-complete';
-            completedButton.innerHTML = '<i class="fas fa-check"></i> Completar Pedido';
-            completedButton.addEventListener('click', (e) => {
-                e.target.closest('tr').style.animation = 'fadeOut 0.5s ease forwards';
-                setTimeout(() => markOrderAsCompleted(orderId), 500);
+        // Obtener IP del servidor para dar un link robusto
+        fetch('/ajustes/ip')
+            .then(res => res.json())
+            .then(data => {
+                const port = window.location.port ? `:${window.location.port}` : '';
+                inputEl.value = `http://${data.ip}${port}${path}`;
+                
+                // Actualizar boton de abrir tb para que use URL estricta
+                const openBtn = inputEl.parentElement.querySelector('a');
+                if (openBtn) openBtn.href = inputEl.value;
+            })
+            .catch(err => {
+                console.error('Error obteniendo IP:', err);
+                inputEl.value = window.location.origin + path;
             });
 
-            // Split productos and cantidades if they are concatenated strings
-            const productos = pedido.producto ? pedido.producto.split(', ') : ['N/A'];
-            const cantidades = pedido.cantidad ? pedido.cantidad.split(', ') : ['N/A'];
-            
-            // Create a formatted list of productos with their cantidades
-            const productList = productos.map((prod, i) => {
-                const cant = cantidades[i] ? parseInt(parseFloat(cantidades[i])) : 'N/A';
-                return `
-                    <div class="product-item">
-                        <span class="product-name">${prod}</span>
-                        <span class="product-quantity">${cant}</span>
-                    </div>`;
-            }).join('');
+        if (btnEl) {
+            btnEl.addEventListener('click', () => {
+                if (!inputEl.value) return;
+                inputEl.select();
+                inputEl.setSelectionRange(0, 99999);
+                try {
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(inputEl.value);
+                    } else {
+                        document.execCommand('copy');
+                    }
+                    const iconoOri = btnEl.innerHTML;
+                    btnEl.innerHTML = '<i class="fas fa-check text-success"></i>';
+                    setTimeout(() => { btnEl.innerHTML = iconoOri; }, 2000);
+                } catch (err) {
+                    console.error("Error al copiar", err);
+                }
+            });
+        }
+    };
 
-            const orderDate = pedido.fecha ? new Date(pedido.fecha) : null;
-            const timeAgo = orderDate ? getTimeAgo(orderDate) : 'N/A';
-            const formattedDate = orderDate ? orderDate.toLocaleString() : 'N/A';
+    setupShortcut(linkP2, btnCopyP2, '/pedidos2.html');
+    setupShortcut(linkP3, btnCopyP3, '/pedidos3.html');
 
-            row.innerHTML = `
-                <td>
-                    <span class="order-number">#${index + 1}</span>
-                </td>
-                <td>
-                    <div class="customer-info">
-                        <i class="fas fa-user-circle"></i>
-                        <span>${pedido.cliente || 'N/A'}</span>
-                    </div>
-                </td>                <td>
-                    <div class="products-container">
-                        ${productList}
-                    </div>
-                </td>
-                <td>
-                    <div class="type-pedido-container">
-                        <span class="${pedido.llevar === '1' ? 'tipo-llevar' : 'tipo-mesa'}">${pedido.llevar === '1' ? 'Para Llevar' : 'Para la mesa'}</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="observation-container">
-                        ${pedido.observaciones ? `<div class="observation-text" title="${pedido.observaciones}">${pedido.observaciones}</div>` : '<span class="no-observation">Sin observaciones</span>'}
-                    </div>
-                </td>
-                <td>
-                    <div class="date-info" title="${formattedDate}">
-                        <i class="far fa-clock"></i>
-                        <span>${timeAgo}</span>
-                    </div>
-                </td>
-            `;
+    // 1. Cargar filtros actuales desde el servidor
+    try {
+        const res = await axios.get('/ajustes/filtros');
+        if (Array.isArray(res.data)) {
+            filtroTextarea.value = res.data.join('\n');
+        }
+    } catch (err) {
+        console.error('Error al cargar filtros:', err);
+        filtroTextarea.value = "Error al intentar conectarse al servidor.";
+    }
+
+    // 2. Guardar filtros al servidor
+    if (guardarBtn) {
+        guardarBtn.addEventListener('click', async () => {
+            if (!filtroTextarea) return;
             
-            const actionCell = document.createElement('td');
-            actionCell.appendChild(completedButton);
-            row.appendChild(actionCell);
-            tableBody.appendChild(row);
+            const lineas = filtroTextarea.value.split('\n')
+                                         .map(l => l.trim())
+                                         .filter(l => l.length > 0);
+            
+            try {
+                guardarBtn.disabled = true;
+                guardarBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+                
+                const res = await axios.post('/ajustes/filtros', { filtros: lineas });
+                if (res.data.success) {
+                    msg.innerHTML = '<i class="fas fa-check-circle me-1"></i> Filtros guardados y aplicados exitosamente.';
+                    msg.className = 'alert-message text-success bg-success bg-opacity-10';
+                    msg.style.display = 'block';
+                    
+                    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+                }
+            } catch (err) {
+                console.error(err);
+                msg.innerHTML = '<i class="fas fa-times-circle me-1"></i> Error al intentar guardar los filtros.';
+                msg.className = 'alert-message text-danger bg-danger bg-opacity-10';
+                msg.style.display = 'block';
+            } finally {
+                guardarBtn.disabled = false;
+                guardarBtn.innerHTML = '<i class="fas fa-save me-2"></i> Guardar Filtros al Servidor';
+            }
         });
-
-        // Si no hay pedidos visibles después de filtrar los completados
-        if (tableBody.children.length === 0) {
-            tableBody.innerHTML = 
-                `<tr><td colspan="6" class="mensaje-centrado">No hay pedidos pendientes</td></tr>`;
-        }
-    } catch (error) {
-        console.error('Error al renderizar pedidos:', error);
-        tableBody.innerHTML = 
-            `<tr><td colspan="6" class="mensaje-error">Error al mostrar los pedidos</td></tr>`;
     }
-}
 
-function updatePageInfo(currentPage, totalPages) {
-    const pageInfo = document.getElementById('pageInfo');
-    const pageNumberSelect = document.getElementById('pageNumberSelect');
-    if (pageInfo) {
-        pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+    // 3. Botón para Limpiar la Caché Local
+    if (btnLimpiarCache) {
+        btnLimpiarCache.addEventListener('click', () => {
+            const confirmed = confirm("¿Está seguro de limpiar la caché de órdenes?\nEsto hará que las órdenes que ya había ocultado o marcado como 'completadas' regresen nuevamente a las pantallas de la cocina en esta computadora.");
+            
+            if (confirmed) {
+                localStorage.removeItem('pedidosCompletados');
+                localStorage.removeItem('completedOrders');
+                
+                alert("¡Memoria de pedidos completados limpiada exitosamente!");
+            }
+        });
     }
-    if (pageNumberSelect) {
-        pageNumberSelect.innerHTML = '';
-        for (let i = 1; i <= totalPages; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = i;
-            if (i === currentPage) option.selected = true;
-            pageNumberSelect.appendChild(option);
-        }
-    }
-}
-
-function updateLastUpdated() {
-    const lastUpdated = document.getElementById('ultimoActualizado');
-    if (lastUpdated) {
-        lastUpdated.textContent = `Última actualización: ${new Date().toLocaleString()}`;
-    }
-}
-
-// Función para inicializar los event listeners
-function initializeEventListeners() {
-    // Agregar el evento para el botón de prueba de sonido
-    document.getElementById('testSoundBtn').addEventListener('click', async () => {
-        console.log('Probando sonido...');
-        await testSound();
-    });
-
-    document.getElementById('prevPage').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            loadPedidos();
-        }
-    });
-
-    document.getElementById('nextPage').addEventListener('click', () => {
-        const pageNumberSelect = document.getElementById('pageNumberSelect');
-        if (currentPage < parseInt(pageNumberSelect.options[pageNumberSelect.options.length-1].value)) {
-            currentPage++;
-            loadPedidos();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    });
-
-    document.getElementById('pageNumberSelect').addEventListener('change', (e) => {
-        const selectedPage = parseInt(e.target.value);
-        if (!isNaN(selectedPage)) {
-            currentPage = selectedPage;
-            loadPedidos();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    });
-
-    document.getElementById('filtrarFechas').addEventListener('click', () => {
-        currentFilters.fechaInicio = document.getElementById('fechaInicio').value;
-        currentFilters.fechaFin = document.getElementById('fechaFin').value;
-        currentPage = 1; // Resetear a la primera página al filtrar
-        loadPedidos();
-    });
-
-    document.getElementById('limpiarFiltros').addEventListener('click', () => {
-        document.getElementById('fechaInicio').value = '';
-        document.getElementById('fechaFin').value = '';
-        currentFilters.fechaInicio = null;
-        currentFilters.fechaFin = null;
-        currentPage = 1; // Resetear a la primera página al limpiar filtros
-        loadPedidos();
-    });
-
-    // Validar que la fecha fin no sea menor que la fecha inicio
-    document.getElementById('fechaFin').addEventListener('change', function() {
-        const fechaInicio = document.getElementById('fechaInicio').value;
-        if (fechaInicio && this.value < fechaInicio) {
-            alert('La fecha final no puede ser menor que la fecha inicial');
-            this.value = fechaInicio;
-        }
-    });
-}
-
-// Función principal para cargar pedidos
-function loadPedidos() {
-    document.getElementById('pedidosTableBody').innerHTML = 
-        `<tr><td colspan="6" class="mensaje-centrado">Cargando pedidos...</td></tr>`;
-    
-    fetchPedidos(currentPage, (data) => {
-        renderPedidos(data.pedidos, 'pedidosTableBody');
-        updatePageInfo(currentPage, data.totalPages);
-        updateLastUpdated();
-        
-        // Deshabilitar botones si es necesario
-        document.getElementById('prevPage').disabled = currentPage <= 1;
-        document.getElementById('nextPage').disabled = currentPage >= data.totalPages;
-    });
-}
-
-// Función para obtener pedidos completados del localStorage
-function getCompletedOrders() {
-    const completed = localStorage.getItem('completedOrders');
-    return completed ? JSON.parse(completed) : [];
-}
-
-// Función para marcar un pedido como completado
-function markOrderAsCompleted(orderId) {
-    const completed = getCompletedOrders();
-    if (!completed.includes(orderId)) {
-        completed.push(orderId);
-        localStorage.setItem('completedOrders', JSON.stringify(completed));
-    }
-    loadPedidos(); // Recargar la lista de pedidos
-}
-
-// Función para formatear el tiempo transcurrido
-function getTimeAgo(date) {
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    const diffInMinutes = Math.floor(diffInSeconds / 60);
-    const diffInHours = Math.floor(diffInMinutes / 60);
-
-    if (diffInSeconds < 60) {
-        return 'Hace un momento';
-    } else if (diffInMinutes < 60) {
-        return `Hace ${diffInMinutes} min`;
-    } else if (diffInHours < 24) {
-        return `Hace ${diffInHours}h`;
-    } else {
-        return date.toLocaleDateString();
-    }
-}
-
-function comparePedidos(oldPedidos, newPedidos) {
-    const oldIds = oldPedidos.map(p => `${p.cliente}-${p.producto}-${p.fecha}`);
-    const newIds = newPedidos.map(p => `${p.cliente}-${p.producto}-${p.fecha}`);
-    
-    // Encontrar pedidos que están en newIds pero no en oldIds
-    return newIds.filter(id => !oldIds.includes(id)).length;
-}
-
-// Esperar a que el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', () => {
-    loadPedidos(); // Cargar los pedidos iniciales primero
-    initializeEventListeners(); // Inicializar los event listeners después
-    
-    // Configurar actualización automática cada 30 segundos
-    setInterval(() => {
-        loadPedidos();
-    }, 5000);
 });

@@ -1,384 +1,173 @@
-/* Estilos específicos para pedidos.html */
 :root {
-    --primary-color: #FF6B35;    /* Naranja vibrante */
-    --secondary-color: #2EC4B6;  /* Verde turquesa */
-    --accent-color: #FFCE32;     /* Amarillo */
-    --text-dark: #333333; /* Color oscuro */
-    --text-light: #666666; /* Color gris */
-    --background-light: #F7F9FC;  /* Gris claro */
+    --primary-color: #ff6b00;
+    --primary-hover: #e65c00;
+    --bg-light: #f8f9fa;
+    --bg-dark: #121212;
+    --text-dark: #2d3436;
+    --bg-glass: rgba(255, 255, 255, 0.9);
 }
-
-/* Ocultar el botón de prueba de sonido, si se quiere usar solo comentar esta linea */
-#testSoundBtn {
-    display: none;
-}
-
-
-
 
 body {
-    background-color: var(--background-light);
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-}
-
-.main-container {
-    padding: 2rem;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-}
-
-h1 {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    min-height: 100vh;
     color: var(--text-dark);
+}
+
+.portal-container {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.portal-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.portal-header h1 {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+}
+
+.portal-header p {
+    color: #636e72;
+    font-size: 1.1rem;
+}
+
+/* Tarjetas de Navegación */
+.nav-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.nav-card {
+    background: var(--bg-glass);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-dark);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(255,255,255,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 5px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+}
+
+.nav-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(255, 107, 0, 0.15);
+}
+
+.nav-card:hover::before {
+    transform: scaleX(1);
+}
+
+.nav-card i {
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.nav-card.secondary i {
+    color: #0984e3;
+}
+.nav-card.secondary::before {
+    background: #0984e3;
+}
+.nav-card.secondary:hover {
+    box-shadow: 0 15px 35px rgba(9, 132, 227, 0.15);
+}
+
+.nav-card h3 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.nav-card p {
+    color: #636e72;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Panel de Administración */
+.admin-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+    border: 1px solid #eee;
+}
+
+.admin-panel-title {
+    font-size: 1.4rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    font-size: 2rem;
-    border-left: 5px solid var(--primary-color);
-    padding-left: 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #f1f2f6;
+    padding-bottom: 1rem;
 }
 
-/* Tabla de pedidos */
-.table {
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+.admin-panel-title i {
+    color: #2d3436;
+    margin-right: 0.5rem;
 }
 
-.table thead {
+.btn-primary-custom {
     background-color: var(--primary-color);
-    color: white;
-}
-
-
-/* Esto para la Linea de tabla el separador */
-.table td, .table th {
-    border-bottom: 1px solid #ff5a20; /* Color gris más oscuro */
-}
-
-.table tr:last-child td {
-    border-bottom: none; /* Elimina borde de la última fila */
-}
-/* Esto para la Linea de tabla el separador */
-
-
-.table th {
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    padding: 1rem;
-}
-
-.table td {
-    padding: 1rem;
-    vertical-align: middle;
-}
-
-/* Interacciones en la tabla */
-/* 
-.table tbody tr {
-    transition: all 0.3s ease;
-}
-*/
-/* Interacciones en la tabla */
-.table tbody tr {
-    animation: fadeIn 0.15s ease forwards;
-}
-
-.table tbody tr:hover {
-    background-color: rgba(255,107,53,0.05);
-}
-
-/* Botones y acciones */
-.btn-complete {
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.btn-complete:hover {
-    background-color: #25a698;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46,196,182,0.2);
-}
-
-.btn-complete i {
-    font-size: 1.1rem;
-}
-
-/* Mensajes y estados */
-.mensaje-centrado {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-light);
-    background-color: white;
-    border-radius: 10px;
-    font-size: 1.1rem;
-}
-
-.mensaje-error {
-    color: #dc3545;
-    text-align: center;
-    padding: 2rem;
-    background-color: #fff5f5;
-    border-radius: 10px;
-    border-left: 4px solid #dc3545;
-}
-
-/* Paginación */
-.pagination {
-    margin: 2rem 0;
-    gap: 1rem;
-}
-
-.btn-nav {
-    background-color: white;
-    color: var(--text-dark);
-    border: 2px solid var(--primary-color);
-    padding: 0.5rem 1.5rem;
-    border-radius: 50px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    min-width: 120px;
-}
-
-.btn-nav:hover:not(:disabled) {
-    background-color: var(--primary-color);
-    color: white;
-    transform: translateY(-1px);
-}
-
-.btn-nav:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-#pageInfo {
-    font-size: 1rem;
-    color: var(--text-light);
-    padding: 0.5rem 1rem;
-    background-color: white;
-    border-radius: 50px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-/* Estado de actualización */
-#ultimoActualizado {
-    text-align: right;
-    color: var(--text-light);
-    font-size: 0.9rem;
-    margin-top: 1rem;
-    padding: 0.5rem;
-    background-color: white;
-    border-radius: 8px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-/* Estilos para los elementos de pedido */
-.order-number {
-    font-weight: 600;
-    color: var(--primary-color);
-    font-size: 1.1rem;
-}
-
-/* Estilos para la nueva columna 'Tipo Pedido' */
-.tipo-llevar {
-    background-color: #FFCE32; /* Amarillo */
-    color: #333333;
-    padding: 0.3em 0.6em;
-    border-radius: 5px;
-    font-weight: 500;
-    display: inline-block;
-}
-
-.tipo-mesa {
-    background-color: #2EC4B6; /* Verde turquesa */
-    color: white;
-    padding: 0.3em 0.6em;
-    border-radius: 5px;
-    font-weight: 500;
-    display: inline-block;
-}
-
-.customer-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.customer-info i {
-    color: var(--text-light);
-    font-size: 1.2rem;
-}
-
-.products-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.product-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--background-light);
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    background-color: #FFD036;
-    text-transform: uppercase;
-}
-
-.product-item:hover {
-    background-color: #2EC4B6;
-}
-
-.product-name {
-    font-weight: 500;
-}
-
-.product-quantity {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.invoice-info, .date-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.invoice-info i, .date-info i {
-    color: var(--text-light);
-}
-
-.date-info {
-    cursor: help;
-}
-
-/* Scrollbar personalizado */
-.products-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.products-container::-webkit-scrollbar-track {
-    background: var(--background-light);
-    border-radius: 10px;
-}
-
-.products-container::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 10px;
-}
-
-.products-container::-webkit-scrollbar-thumb:hover {
-    background: #ff5a20;
-}
-
-/* Animaciones */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; transform: translateX(0); }
-    to { opacity: 0; transform: translateX(30px); }
-}
-
-.table tbody tr {
-    animation: fadeIn 0.3s ease forwards;
-}
-
-/* Estilos para los filtros de fecha */
-.date-filters {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.date-filters .form-control {
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    padding: 0.5rem 1rem;
-    min-width: 150px;
-}
-
-.date-filters .form-control:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(255,107,53,0.25);
-}
-
-.date-filters .btn-primary {
-    background-color: var(--primary-color);
-    border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.date-filters .btn-primary:hover {
-    background-color: #ff5a20;
-    transform: translateY(-1px);
-}
-
-.date-filters .btn-outline-secondary {
-    border-color: #e0e0e0;
-    color: var(--text-light);
-    padding: 0.5rem 1.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.date-filters .btn-outline-secondary:hover {
-    background-color: #f5f5f5;
-    color: var(--text-dark);
-}
-
-.date-filters label {
-    color: var(--text-dark);
+    color: white;
     font-weight: 500;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s;
 }
 
-/* Estilos para las observaciones */
-.observation-container {
-    max-width: 250px;
-    padding: 0.5rem;
+.btn-primary-custom:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: white;
 }
 
-.observation-text {
-    background-color: #dc3545;  /* Fondo azul muy claro */
-    padding: 0.5rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    color: #ffffff;  /* Texto azul oscuro */
-    line-height: 1.4;
-    display: block;
-    word-wrap: break-word;
-    max-height: 80px;
-    overflow-y: auto;
-    border: 1px solid #dc3545;  /* Borde azul claro */
-    text-transform: uppercase;  /* Texto en mayúsculas */
+textarea.form-control {
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #dfe6e9;
+    font-family: monospace;
+    font-size: 0.95rem;
+    resize: vertical;
 }
 
-.no-observation {
-    color: #6c757d;  /* Gris medio para texto sin observaciones */
-    font-style: italic;
-    font-size: 0.9rem;
-    text-transform: uppercase;  /* Texto en mayúsculas */
+textarea.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 0, 0.25);
+}
+
+.alert-message {
+    display: none;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
