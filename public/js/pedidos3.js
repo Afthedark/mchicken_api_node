@@ -77,11 +77,23 @@ head.appendChild(link);
 
 // Sonido de alerta para nuevos pedidos
 // Usar el <audio> global si existe, si no, crear uno
-let alertaAudio = null;
-if (window && document.getElementById('alertaAudio')) {
-    alertaAudio = document.getElementById('alertaAudio');
-} else {
-    alertaAudio = new Audio('/assets/sounds/alerta1.mp3');
+// Sonidos para nuevos pedidos (selección aleatoria)
+const SONIDOS_PEDIDOS = [
+    '/assets/sounds/pedidos/pedido1.mp3',
+    '/assets/sounds/pedidos/pedido2.mp3',
+    '/assets/sounds/pedidos/pedido3.mp3'
+];
+function reproducirSonidoPedido() {
+    const idx = Math.floor(Math.random() * SONIDOS_PEDIDOS.length);
+    const ids = ['alertaAudioP1', 'alertaAudioP2', 'alertaAudioP3'];
+    const audio = document.getElementById(ids[idx]);
+    if (audio) {
+        audio.currentTime = 0;
+        return audio.play().catch(() => {});
+    }
+    // Fallback si el elemento no existe en el DOM
+    const fallback = new Audio(SONIDOS_PEDIDOS[idx]);
+    return fallback.play().catch(() => {});
 }
 let ultimosIdsPedidos = [];
 
@@ -426,12 +438,7 @@ async function cargarPedidos() {
         // Solo sonar si el usuario habilitó el sonido y no es la carga inicial
         const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
         if (!esCargaInicial && nuevos.length > 0 && sonidoHabilitado) {
-            try {
-                alertaAudio.currentTime = 0;
-                alertaAudio.play();
-            } catch (e) {
-                // Si el navegador bloquea el sonido, ignorar
-            }
+            reproducirSonidoPedido();
         }
         ultimosIdsPedidos = idsActuales;
         // Después de la primera carga, ya no es la carga inicial
@@ -495,15 +502,7 @@ async function cargarPedidosIncremental() {
         // --- SONIDO: Solo si el usuario lo activó y hay nuevos pedidos ---
         const sonidoHabilitado = localStorage.getItem('sonidoHabilitadoPedidos') === 'true';
         if (pedidosNuevos.length > 0 && sonidoHabilitado) {
-            try {
-                alertaAudio.currentTime = 0;
-                const playPromise = alertaAudio.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {/* Autoplay bloqueado, ignorar */ });
-                }
-            } catch (e) {
-                // Si el navegador bloquea el sonido, ignorar
-            }
+            reproducirSonidoPedido();
         }
 
         // Detectar pedidos eliminados
