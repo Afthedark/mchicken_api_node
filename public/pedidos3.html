@@ -179,10 +179,9 @@
     // Botón flotante para probar sonido y activar preferencias
     (function() {
       const btnProbarSonido = document.getElementById('btnProbarSonido');
-      const alertaAudio = document.getElementById('alertaAudio');
       const alertaAudioTest = document.getElementById('alertaAudioTest');
       const textoAyuda = document.getElementById('textoSonidoAyuda');
-      if (!btnProbarSonido || !alertaAudio || !alertaAudioTest) return;
+      if (!btnProbarSonido || !alertaAudioTest) return;
 
       // Al cargar, el sonido está deshabilitado por defecto por políticas del navegador
       localStorage.setItem('sonidoHabilitadoPedidos', 'false');
