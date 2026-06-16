@@ -9,7 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container py-4">
+    <div class="container-fluid py-4" style="max-width: 90%; margin: 0 auto;">
         <div class="header-responsive d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center mb-4 gap-2 gap-sm-0">
             <h1 class="mb-0 main-title text-center text-sm-start w-100 w-sm-auto">
                 <i class="fas fa-utensils me-2"></i>
@@ -199,7 +199,7 @@
         alertaAudioTest.play().then(() => {
           // Guardar preferencia en localStorage
           localStorage.setItem('sonidoHabilitadoPedidos', 'true');
-          btnProbarSonido.innerHTML = '<i class="fas fa-check-circle me-2"></i> <span>Sonido Activado</span>';
+          btnProbarSonido.innerHTML = '<i class="fas fa-volume-up" style="font-size: 1.25rem;"></i>';
           btnProbarSonido.classList.add('sonido-activado');
           
           // Ocultar el texto de ayuda

@@ -404,6 +404,10 @@ body {
 #btnProbarSonido.sonido-activado {
     background: #28a745;
     color: #fff;
+    width: 56px;
+    min-width: 56px;
+    padding: 0;
+    border-radius: 50%;
 }
 
 @media (max-width: 575.98px) {
@@ -416,6 +420,12 @@ body {
         height: 52px;
         padding: 0 1.25rem;
         font-size: 0.95rem;
+    }
+
+    #btnProbarSonido.sonido-activado {
+        width: 52px;
+        min-width: 52px;
+        padding: 0;
     }
 }
 

@@ -26,6 +26,7 @@ const pedidosController = {
             lf.producto,
             p.fecha,
             lf.cantidad,
+            lf.salsas,
             lf.llevar,
             f.factura_id AS 'Factura ID',
             p.estado,
@@ -39,9 +40,21 @@ const pedidosController = {
             facturas f ON p.pedido_id = f.pedido_id
         LEFT JOIN (
             SELECT 
-                factura_id,
+                lpf.factura_id,
                 GROUP_CONCAT(i.descripcion SEPARATOR ', ') AS producto,
                 GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
+                GROUP_CONCAT(
+                    COALESCE(
+                        (SELECT GROUP_CONCAT(sub_i.descripcion SEPARATOR ' + ')
+                         FROM combos c
+                         JOIN items sub_i ON c.item_id = sub_i.item_id
+                         WHERE c.lin_factura_id = lpf.lin_factura_id
+                           AND (sub_i.descripcion LIKE '%Salsa%' OR sub_i.descripcion LIKE '%salsa%')
+                        ),
+                        'SIN_SALSA o SIN DATOS'
+                    )
+                    SEPARATOR '; '
+                ) AS salsas,
                 MAX(lpf.llevar) AS llevar
             FROM 
                 lin_facturas lpf
@@ -88,6 +101,7 @@ const pedidosController = {
             lf.producto,
             p.fecha,
             lf.cantidad,
+            lf.salsas,
             lf.llevar,
             f.factura_id AS 'Factura ID',
             p.estado,
@@ -101,9 +115,21 @@ const pedidosController = {
             facturas f ON p.pedido_id = f.pedido_id
         LEFT JOIN (
             SELECT 
-                factura_id,
+                lpf.factura_id,
                 GROUP_CONCAT(i.descripcion SEPARATOR ', ') AS producto,
                 GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
+                GROUP_CONCAT(
+                    COALESCE(
+                        (SELECT GROUP_CONCAT(sub_i.descripcion SEPARATOR ' + ')
+                         FROM combos c
+                         JOIN items sub_i ON c.item_id = sub_i.item_id
+                         WHERE c.lin_factura_id = lpf.lin_factura_id
+                           AND (sub_i.descripcion LIKE '%Salsa%' OR sub_i.descripcion LIKE '%salsa%')
+                        ),
+                        'SIN_SALSA o SIN DATOS'
+                    )
+                    SEPARATOR '; '
+                ) AS salsas,
                 MAX(lpf.llevar) AS llevar
             FROM 
                 lin_facturas lpf

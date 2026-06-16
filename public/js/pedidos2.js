@@ -92,9 +92,11 @@ function crearTarjetaPedido(pedido, idx) {
     let productos = (pedido.producto || '').split(',');
     let cantidades = (pedido.cantidad || '').split(',');
     let observacionesPorProducto = (pedido.observaciones_por_pedido || '').split(' | ');
+    let salsas = (pedido.salsas || '').split(';');
     if (!Array.isArray(productos)) productos = [];
     if (!Array.isArray(cantidades)) cantidades = [];
     if (!Array.isArray(observacionesPorProducto)) observacionesPorProducto = [];
+    if (!Array.isArray(salsas)) salsas = [];
 
     let productosHtml = '<div class="productos-container">';
     let hayProductosValidos = false;
@@ -107,6 +109,20 @@ function crearTarjetaPedido(pedido, idx) {
         }
         // Observación por producto (si existe)
         let obsProd = observacionesPorProducto[i] ? observacionesPorProducto[i].trim().toLowerCase() : '';
+        // Salsas del producto (si existen)
+        let salsasDelProducto = salsas[i] ? salsas[i].trim() : '';
+        let salsasHtml = '';
+        if (salsasDelProducto && salsasDelProducto !== 'SIN_SALSA o SIN DATOS') {
+            const listaSalsas = salsasDelProducto.split(' + ');
+            salsasHtml = `<div class="salsas-container mt-1 d-flex flex-column gap-1">` + 
+                listaSalsas.map(s => `
+                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 align-self-start" 
+                          style="font-size: 0.72rem; padding: 2px 6px; font-weight: 600; text-transform: uppercase; white-space: normal; text-align: left; max-width: 100%;">
+                        <i class="fas fa-wine-bottle me-1"></i>${s.trim().toUpperCase()}
+                    </span>
+                `).join('') + 
+            `</div>`;
+        }
         // Si hay al menos un nombre o cantidad válida, procedemos
         if (prod || cant) {
             hayProductosValidos = true;
@@ -115,6 +131,7 @@ function crearTarjetaPedido(pedido, idx) {
                     <div class="producto-cantidad-modern">${cant}</div>
                     <div class="producto-detalle">
                         <div class="producto-nombre-modern">${prod}</div>
+                        ${salsasHtml}
                         ${obsProd ? `<div class="producto-observacion">${obsProd.charAt(0).toUpperCase() + obsProd.slice(1)}</div>` : ''}
                     </div>
                 </div>`;
