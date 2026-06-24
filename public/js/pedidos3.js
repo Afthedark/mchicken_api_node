@@ -168,10 +168,18 @@ function crearTarjetaPedido(pedido, idx) {
         if (cant && !isNaN(cant)) {
             cant = parseInt(cant);
         }
+        // Validar si el producto pertenece a las categorías autorizadas para llevar salsa
+        const esProductoConSalsa = 
+            prod.includes('SANGUCHIT') || 
+            prod.includes('ALITA') || 
+            prod.includes('FRIENDS BOX') || 
+            prod.includes('BOX FRIENDS') || 
+            prod.includes('BOX WINGS');
+
         // Observación por producto (si existe)
         let obsProd = observacionesPorProducto[i] ? observacionesPorProducto[i].trim().toLowerCase() : '';
-        // Salsas del producto (si existen)
-        let salsasDelProducto = salsas[i] ? salsas[i].trim() : '';
+        // Salsas del producto (si existen y es un producto autorizado)
+        let salsasDelProducto = esProductoConSalsa && salsas[i] ? salsas[i].trim() : '';
         let salsasHtml = '';
         if (salsasDelProducto && salsasDelProducto !== 'SIN_SALSA o SIN DATOS') {
             const listaSalsas = salsasDelProducto.split(' + ');
@@ -443,7 +451,13 @@ async function cargarPedidos() {
     tarjetasPedidos.innerHTML = '<div class="text-center w-100 py-5"><div class="spinner-border" role="status"></div></div>';
     try {
         // Selecciona el endpoint según el filtro
-        API_URL = filtroHoyActivo ? '/pedidos/hoy' : '/pedidos';
+        if (filtroHoyActivo) {
+            API_URL = '/pedidos/hoy';
+        } else {
+            const fDesde = localStorage.getItem('ajustesFechaDesde') || '';
+            const fHasta = localStorage.getItem('ajustesFechaHasta') || '';
+            API_URL = `/pedidos?fechaInicio=${fDesde}&fechaFin=${fHasta}`;
+        }
         const res = await axios.get(`${API_URL}`);
         let completados = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
         let pedidos = (res.data.pedidos || res.data);
@@ -502,7 +516,13 @@ async function cargarPedidos() {
 async function cargarPedidosIncremental() {
     try {
         // Selecciona el endpoint según el filtro
-        API_URL = filtroHoyActivo ? '/pedidos/hoy' : '/pedidos';
+        if (filtroHoyActivo) {
+            API_URL = '/pedidos/hoy';
+        } else {
+            const fDesde = localStorage.getItem('ajustesFechaDesde') || '';
+            const fHasta = localStorage.getItem('ajustesFechaHasta') || '';
+            API_URL = `/pedidos?fechaInicio=${fDesde}&fechaFin=${fHasta}`;
+        }
         const res = await axios.get(`${API_URL}`);
         let completados = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
         let pedidos = (res.data.pedidos || res.data);
@@ -665,6 +685,43 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Restaurar el estado del filtro desde localStorage
     const filtroHoySwitch = document.getElementById('ajustesFiltroHoy');
     const filtroHoyGuardado = localStorage.getItem('filtroHoyActivo');
+    const rangoFechasDiv = document.getElementById('ajustesRangoFechas');
+    const fechaDesdeInput = document.getElementById('ajustesFechaDesde');
+    const fechaHastaInput = document.getElementById('ajustesFechaHasta');
+    const hoyStr = new Date().toISOString().slice(0, 10);
+
+    const actualizarVisibilidadRango = (activo) => {
+        if (rangoFechasDiv) {
+            rangoFechasDiv.style.display = activo ? 'none' : 'block';
+        }
+    };
+
+    // Inicializar fechas
+    if (fechaDesdeInput && fechaHastaInput) {
+        const guardadoDesde = localStorage.getItem('ajustesFechaDesde') || hoyStr;
+        const guardadoHasta = localStorage.getItem('ajustesFechaHasta') || hoyStr;
+        fechaDesdeInput.value = guardadoDesde;
+        fechaHastaInput.value = guardadoHasta;
+        localStorage.setItem('ajustesFechaDesde', guardadoDesde);
+        localStorage.setItem('ajustesFechaHasta', guardadoHasta);
+
+        fechaDesdeInput.addEventListener('change', () => {
+            localStorage.setItem('ajustesFechaDesde', fechaDesdeInput.value);
+            if (!filtroHoyActivo) {
+                paginaActual = 1;
+                cargarPedidos();
+            }
+        });
+
+        fechaHastaInput.addEventListener('change', () => {
+            localStorage.setItem('ajustesFechaHasta', fechaHastaInput.value);
+            if (!filtroHoyActivo) {
+                paginaActual = 1;
+                cargarPedidos();
+            }
+        });
+    }
+
     if (filtroHoySwitch) {
         if (filtroHoyGuardado !== null) {
             filtroHoyActivo = filtroHoyGuardado === 'true';
@@ -674,9 +731,12 @@ window.addEventListener('DOMContentLoaded', async () => {
             filtroHoySwitch.checked = true;
             localStorage.setItem('filtroHoyActivo', 'true');
         }
+        actualizarVisibilidadRango(filtroHoyActivo);
+
         filtroHoySwitch.addEventListener('change', function () {
             filtroHoyActivo = filtroHoySwitch.checked;
             localStorage.setItem('filtroHoyActivo', filtroHoyActivo);
+            actualizarVisibilidadRango(filtroHoyActivo);
             paginaActual = 1;
             cargarPedidos();
         });

@@ -73,7 +73,9 @@
 
 ### 🏠 Acceso Local
 - 🌐 Acceder a la interfaz web en `http://localhost:3000`
-- 🔌 La API estará disponible en `http://localhost:3000/pedidos`
+- 🔌 La API estará disponible en:
+  * `http://localhost:3000/pedidos` (admite parámetros de consulta opcionales `fechaInicio=YYYY-MM-DD` y `fechaFin=YYYY-MM-DD`).
+  * `http://localhost:3000/pedidos/hoy` (carga optimizada sólo para el día actual).
 
 ### 🌍 Acceso desde otras máquinas en la red LAN
 1. 🔍 Obtener la IP de la máquina servidor usando el comando `ipconfig` en la terminal
@@ -94,6 +96,10 @@
 - 🎯 **Filtro Inteligente de Productos (`pedidos3.html`)**: Pantalla secundaria configurada para mostrar *única y exclusivamente* las órdenes que contengan productos específicos, recortando los elementos irrelevantes de las facturas para no saturar al cocinero.
 - 🛠️ **Gestión Dinámica de Filtros**: Administración en tiempo real de la lista de productos válidos desde el Portal Central de manera sencilla (almacenamiento persistente en JSON).
 - 🧹 **Mantenimiento de Caché**: Botón dedicado para vaciar la memoria de facturas completadas y reiniciar el estado de la aplicación.
+- 📅 **Filtro por Rango de Fechas Histórico (Desde / Hasta)**: Disponible en el modal de ajustes de las pantallas KDS para acotar búsquedas históricas personalizadas de pedidos completados, evitando saturar la memoria y bloqueos del servidor.
+- 🥫 **Filtrado Selectivo de Salsas**:
+  * **Backend (SQL)**: Cláusula `CASE WHEN` que evalúa de forma optimizada la descripción del producto antes de realizar la subconsulta SQL de combos.
+  * **Frontend (JS)**: Validación `esProductoConSalsa` que comprueba si el producto es elegible (únicamente **Sanguchitas**, **Alitas**, **Friends Box** y **Box Wings**). Para cualquier otro producto, se omiten las salsas por completo.
 - 🔄 Endpoint GET `/pedidos` para obtener todos los pedidos.
 - ⚡ Actualización automática cada 10 segundos (incremental).
 - 🎨 **Identificación Visual de Pedidos**:

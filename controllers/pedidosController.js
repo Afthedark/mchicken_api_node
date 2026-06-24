@@ -44,15 +44,24 @@ const pedidosController = {
                 GROUP_CONCAT(i.descripcion SEPARATOR ', ') AS producto,
                 GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
                 GROUP_CONCAT(
-                    COALESCE(
-                        (SELECT GROUP_CONCAT(sub_i.descripcion SEPARATOR ' + ')
-                         FROM combos c
-                         JOIN items sub_i ON c.item_id = sub_i.item_id
-                         WHERE c.lin_factura_id = lpf.lin_factura_id
-                           AND (sub_i.descripcion LIKE '%Salsa%' OR sub_i.descripcion LIKE '%salsa%')
-                        ),
-                        'SIN_SALSA o SIN DATOS'
-                    )
+                    CASE 
+                        WHEN LOWER(i.descripcion) LIKE '%sanguchit%' 
+                          OR LOWER(i.descripcion) LIKE '%alita%' 
+                          OR LOWER(i.descripcion) LIKE '%friends box%' 
+                          OR LOWER(i.descripcion) LIKE '%box friends%' 
+                          OR LOWER(i.descripcion) LIKE '%box wings%' 
+                        THEN 
+                            COALESCE(
+                                (SELECT GROUP_CONCAT(sub_i.descripcion SEPARATOR ' + ')
+                                 FROM combos c
+                                 JOIN items sub_i ON c.item_id = sub_i.item_id
+                                 WHERE c.lin_factura_id = lpf.lin_factura_id
+                                   AND (sub_i.descripcion LIKE '%Salsa%' OR sub_i.descripcion LIKE '%salsa%')
+                                ),
+                                'SIN_SALSA o SIN DATOS'
+                            )
+                        ELSE 'SIN_SALSA o SIN DATOS'
+                    END
                     SEPARATOR '; '
                 ) AS salsas,
                 MAX(lpf.llevar) AS llevar
@@ -119,15 +128,24 @@ const pedidosController = {
                 GROUP_CONCAT(i.descripcion SEPARATOR ', ') AS producto,
                 GROUP_CONCAT(lpf.cantidad SEPARATOR ', ') AS cantidad,
                 GROUP_CONCAT(
-                    COALESCE(
-                        (SELECT GROUP_CONCAT(sub_i.descripcion SEPARATOR ' + ')
-                         FROM combos c
-                         JOIN items sub_i ON c.item_id = sub_i.item_id
-                         WHERE c.lin_factura_id = lpf.lin_factura_id
-                           AND (sub_i.descripcion LIKE '%Salsa%' OR sub_i.descripcion LIKE '%salsa%')
-                        ),
-                        'SIN_SALSA o SIN DATOS'
-                    )
+                    CASE 
+                        WHEN LOWER(i.descripcion) LIKE '%sanguchit%' 
+                          OR LOWER(i.descripcion) LIKE '%alita%' 
+                          OR LOWER(i.descripcion) LIKE '%friends box%' 
+                          OR LOWER(i.descripcion) LIKE '%box friends%' 
+                          OR LOWER(i.descripcion) LIKE '%box wings%' 
+                        THEN 
+                            COALESCE(
+                                (SELECT GROUP_CONCAT(sub_i.descripcion SEPARATOR ' + ')
+                                 FROM combos c
+                                 JOIN items sub_i ON c.item_id = sub_i.item_id
+                                 WHERE c.lin_factura_id = lpf.lin_factura_id
+                                   AND (sub_i.descripcion LIKE '%Salsa%' OR sub_i.descripcion LIKE '%salsa%')
+                                ),
+                                'SIN_SALSA o SIN DATOS'
+                            )
+                        ELSE 'SIN_SALSA o SIN DATOS'
+                    END
                     SEPARATOR '; '
                 ) AS salsas,
                 MAX(lpf.llevar) AS llevar

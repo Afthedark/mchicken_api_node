@@ -50,9 +50,23 @@
                 <div id="ajustesOpcionesSection" style="display:none;">
                   <div class="mb-3">
                     <label class="form-label">Filtrar pedidos del día (En Adelante)</label>
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch mb-2">
                       <input class="form-check-input" type="checkbox" id="ajustesFiltroHoy" checked>
                       <label class="form-check-label" for="ajustesFiltroHoy">Mostrar solo pedidos de hoy</label>
+                    </div>
+                    <!-- Rango de fechas histórico (oculto por defecto) -->
+                    <div id="ajustesRangoFechas" style="display: none;" class="mt-2 p-2 border rounded bg-light">
+                      <label class="form-label fw-bold small text-secondary">Rango de Fechas Personalizado</label>
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <label for="ajustesFechaDesde" class="form-label small mb-1">Desde:</label>
+                          <input type="date" class="form-control form-control-sm" id="ajustesFechaDesde">
+                        </div>
+                        <div class="col-6">
+                          <label for="ajustesFechaHasta" class="form-label small mb-1">Hasta:</label>
+                          <input type="date" class="form-control form-control-sm" id="ajustesFechaHasta">
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <hr>
