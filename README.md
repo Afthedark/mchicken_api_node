@@ -100,6 +100,10 @@
 - 🥫 **Filtrado Selectivo de Salsas**:
   * **Backend (SQL)**: Cláusula `CASE WHEN` que evalúa de forma optimizada la descripción del producto antes de realizar la subconsulta SQL de combos.
   * **Frontend (JS)**: Validación `esProductoConSalsa` que comprueba si el producto es elegible (únicamente **Sanguchitas**, **Alitas**, **Friends Box** y **Box Wings**). Para cualquier otro producto, se omiten las salsas por completo.
+- 📜 **Historial de Pedidos Completados (Hoy)**:
+  * Botón directo en la barra superior junto al engranaje de Ajustes en `pedidos2.html` y `pedidos3.html`.
+  * Despliega un modal con tabla responsiva y buscador en tiempo real por número de factura, cliente, productos, salsas y observaciones.
+  * Funciona de manera desacoplada e independiente por estación mediante la memoria local del navegador (`localStorage`) cruzada con los pedidos del día (`/pedidos/hoy`), manteniendo la vista completa en `pedidos2` y la vista filtrada en `pedidos3`.
 - 🔄 Endpoint GET `/pedidos` para obtener todos los pedidos.
 - ⚡ Actualización automática cada 10 segundos (incremental).
 - 🎨 **Identificación Visual de Pedidos**:

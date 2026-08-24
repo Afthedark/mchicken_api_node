@@ -838,6 +838,202 @@ window.addEventListener('DOMContentLoaded', async () => {
         cargarPedidosIncremental();
     }, 10000); // Actualiza cada 10 segundos
 
+    // --- LÓGICA DE HISTORIAL DE PEDIDOS COMPLETADOS (HOY) ---
+    const historialBtn = document.getElementById('historialBtn');
+    const historialModalEl = document.getElementById('historialModal');
+    const buscadorHistorial = document.getElementById('buscadorHistorial');
+    const limpiarBuscadorBtn = document.getElementById('limpiarBuscadorHistorialBtn');
+    const cuerpoTablaHistorial = document.getElementById('cuerpoTablaHistorial');
+    const contadorHistorial = document.getElementById('contadorHistorial');
+    let pedidosCompletadosHoyCache = [];
+
+    async function cargarHistorialCompletados() {
+        if (!cuerpoTablaHistorial) return;
+        cuerpoTablaHistorial.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    Cargando pedidos completados de hoy...
+                </td>
+            </tr>`;
+
+        try {
+            const res = await axios.get('/pedidos/hoy');
+            const pedidos = res.data.pedidos || res.data || [];
+            const completadosIds = JSON.parse(localStorage.getItem('pedidosCompletados') || '[]');
+
+            // Filtrar solo los pedidos de hoy que están en pedidosCompletados y que corresponden al filtro de productos
+            let completados = [];
+            pedidos.forEach(p => {
+                const idUnico = getPedidoIdUnico(p);
+                if (completadosIds.includes(idUnico)) {
+                    const filtrado = filtrarPedidoPorProductos(p);
+                    if (filtrado) {
+                        completados.push(filtrado);
+                    }
+                }
+            });
+
+            pedidosCompletadosHoyCache = completados;
+
+            // Ordenar por fecha descendente (los más recientes primero)
+            pedidosCompletadosHoyCache.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            filtrarYRenderizarHistorial();
+        } catch (err) {
+            console.error('Error al cargar historial:', err);
+            cuerpoTablaHistorial.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger py-4">
+                        <i class="fas fa-exclamation-circle me-1"></i> Error al cargar el historial de pedidos.
+                    </td>
+                </tr>`;
+        }
+    }
+
+    function renderTablaHistorial(lista) {
+        if (!cuerpoTablaHistorial || !contadorHistorial) return;
+
+        contadorHistorial.innerHTML = `<i class="fas fa-check-double me-1"></i> ${lista.length} completado${lista.length === 1 ? '' : 's'}`;
+
+        if (lista.length === 0) {
+            const esBusqueda = buscadorHistorial && buscadorHistorial.value.trim() !== '';
+            cuerpoTablaHistorial.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fas ${esBusqueda ? 'fa-search' : 'fa-inbox'} fa-2x mb-2 d-block opacity-50"></i>
+                        ${esBusqueda ? 'No se encontraron pedidos con ese criterio de búsqueda.' : 'No hay pedidos marcados como completados hoy.'}
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        let html = '';
+        lista.forEach(p => {
+            const facturaId = p['Factura ID'] ? `#${p['Factura ID']}` : '<span class="text-muted">S/N</span>';
+            
+            // Formatear hora
+            let horaStr = '-';
+            if (p.fecha) {
+                const d = new Date(p.fecha);
+                if (!isNaN(d.getTime())) {
+                    horaStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                }
+            }
+
+            const clienteStr = p.cliente ? p.cliente.trim() : 'Sin cliente';
+
+            // Procesar productos y salsas
+            const prods = (p.producto || '').split(',');
+            const cants = (p.cantidad || '').split(',');
+            const sals = (p.salsas || '').split(';');
+
+            let productosRender = '<div class="d-flex flex-column gap-1">';
+            let salsasRender = '<div class="d-flex flex-column gap-1">';
+
+            for (let i = 0; i < prods.length; i++) {
+                const prodName = prods[i] ? prods[i].trim() : '';
+                const cant = cants[i] ? cants[i].trim() : '1';
+                if (prodName) {
+                    productosRender += `<div><span class="badge bg-secondary me-1">${cant}</span><strong class="text-dark">${prodName}</strong></div>`;
+                }
+
+                // Salsas
+                const prodUpper = prodName.toUpperCase();
+                const esProductoConSalsa = 
+                    prodUpper.includes('SANGUCHIT') || 
+                    prodUpper.includes('ALITA') || 
+                    prodUpper.includes('FRIENDS BOX') || 
+                    prodUpper.includes('BOX FRIENDS') || 
+                    prodUpper.includes('BOX WINGS');
+
+                const salsasDelProducto = esProductoConSalsa && sals[i] ? sals[i].trim() : '';
+                if (salsasDelProducto && salsasDelProducto !== 'SIN_SALSA o SIN DATOS') {
+                    const listaSalsas = salsasDelProducto.split(' + ');
+                    listaSalsas.forEach(s => {
+                        salsasRender += `
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size:0.75rem; text-align:left; white-space:normal;">
+                                <i class="fas fa-wine-bottle me-1"></i>${s.trim().toUpperCase()}
+                            </span>`;
+                    });
+                }
+            }
+            productosRender += '</div>';
+            salsasRender += '</div>';
+
+            if (salsasRender === '<div class="d-flex flex-column gap-1"></div>') {
+                salsasRender = '<span class="text-muted small">-</span>';
+            }
+
+            // Observaciones
+            let obsTotal = [];
+            if (p['observacion general']) obsTotal.push(p['observacion general'].trim());
+            if (p.observaciones_por_pedido) obsTotal.push(p.observaciones_por_pedido.trim());
+            const obsStr = obsTotal.length > 0 ? `<span class="badge bg-warning bg-opacity-25 text-dark border border-warning border-opacity-50 text-wrap text-start">${obsTotal.join(' | ')}</span>` : '<span class="text-muted small">-</span>';
+
+            html += `
+                <tr>
+                    <td><span class="badge bg-primary fs-6">${facturaId}</span></td>
+                    <td class="fw-medium text-secondary"><i class="far fa-clock me-1"></i>${horaStr}</td>
+                    <td class="fw-semibold text-dark">${clienteStr}</td>
+                    <td>${productosRender}</td>
+                    <td>${salsasRender}</td>
+                    <td>${obsStr}</td>
+                </tr>`;
+        });
+
+        cuerpoTablaHistorial.innerHTML = html;
+    }
+
+    function filtrarYRenderizarHistorial() {
+        const query = buscadorHistorial ? buscadorHistorial.value.trim().toLowerCase() : '';
+        if (!query) {
+            renderTablaHistorial(pedidosCompletadosHoyCache);
+            return;
+        }
+
+        const filtrados = pedidosCompletadosHoyCache.filter(p => {
+            const factura = (p['Factura ID'] || '').toString().toLowerCase();
+            const cliente = (p.cliente || '').toLowerCase();
+            const producto = (p.producto || '').toLowerCase();
+            const salsas = (p.salsas || '').toLowerCase();
+            const obsGen = (p['observacion general'] || '').toLowerCase();
+            const obsPed = (p.observaciones_por_pedido || '').toLowerCase();
+
+            return factura.includes(query) ||
+                   cliente.includes(query) ||
+                   producto.includes(query) ||
+                   salsas.includes(query) ||
+                   obsGen.includes(query) ||
+                   obsPed.includes(query);
+        });
+
+        renderTablaHistorial(filtrados);
+    }
+
+    if (historialBtn && historialModalEl) {
+        historialBtn.addEventListener('click', () => {
+            if (buscadorHistorial) buscadorHistorial.value = '';
+            if (window.bootstrap) {
+                const modal = bootstrap.Modal.getOrCreateInstance(historialModalEl);
+                modal.show();
+            }
+            cargarHistorialCompletados();
+        });
+    }
+
+    if (buscadorHistorial) {
+        buscadorHistorial.addEventListener('input', filtrarYRenderizarHistorial);
+    }
+
+    if (limpiarBuscadorBtn && buscadorHistorial) {
+        limpiarBuscadorBtn.addEventListener('click', () => {
+            buscadorHistorial.value = '';
+            filtrarYRenderizarHistorial();
+            buscadorHistorial.focus();
+        });
+    }
+
     // Asegura que el modal de ajustes se abra correctamente si falla el data-bs-toggle
     const ajustesBtn = document.getElementById('ajustesBtn');
     const ajustesModalEl = document.getElementById('ajustesModal');
